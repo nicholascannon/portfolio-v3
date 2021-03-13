@@ -1,0 +1,25 @@
+.project-list ul {
+	list-style-type: none;
+}
+.project-list ul li {
+	display: flex;
+	align-items: center;
+
+	margin: 0.5em 0 0.5em 0;
+	padding-left: 0.5em;
+	border: 1px solid #c4c4c4;
+	border-radius: 8px;
+}
+.project-list ul li h3 {
+	width: 100%;
+}
+
+.navIcon {
+	width: 25px;
+	height: 25px;
+}
+.deleteBtn {
+	background-color: transparent;
+	border: none;
+	padding: 0 10px 0 10px;
+}

@@ -1,0 +1,53 @@
+{
+	"name": "portfolio-frontend",
+	"version": "0.1.0",
+	"private": true,
+	"main": "app.js",
+	"pre-commit": [
+		"pretty"
+	],
+	"author": "Nicholas Cannon",
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"pretty": "pretty-quick --staged"
+	},
+	"dependencies": {
+		"axios": "^0.19.1",
+		"particle.js": "^1.0.7",
+		"prop-types": "^15.7.2",
+		"react": "^16.12.0",
+		"react-dom": "^16.12.0",
+		"react-fontawesome": "^1.7.1",
+		"react-ga": "^2.7.0",
+		"react-particles-js": "^2.7.0",
+		"react-redux": "^7.1.3",
+		"react-router-dom": "^5.1.2",
+		"react-scripts": "3.0.1",
+		"react-transition-group": "^4.3.0",
+		"redux": "^4.0.5",
+		"redux-logger": "^3.0.6",
+		"redux-thunk": "^2.3.0",
+		"eslint": "^5.16.0"
+	},
+	"devDependencies": {
+		"pre-commit": "^1.2.2",
+		"prettier": "^1.19.1",
+		"pretty-quick": "^1.11.1"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	}
+}

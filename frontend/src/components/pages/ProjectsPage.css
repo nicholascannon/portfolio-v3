@@ -1,0 +1,55 @@
+.ProjectsPage {
+	display: flex;
+	flex-direction: column;
+}
+.ProjectsPage > div {
+	min-width: 100%;
+	align-content: center;
+	justify-self: center;
+	flex: 1;
+	display: grid;
+	grid-template-columns: calc(100% / 3) calc(100% / 3) calc(100% / 3);
+}
+.tablet .ProjectsPage > div,
+.mobile .ProjectsPage > div {
+	display: flex;
+	flex-direction: column;
+}
+@media (max-width: 1200px) {
+	.ProjectsPage > div {
+		grid-template-columns: calc(100% / 2) calc(100% / 2);
+	}
+}
+
+.ProjectsPage .projectCard {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: 1em;
+	margin: 0.5em;
+	background-color: #fafafa;
+	color: #000000;
+	border-radius: 10px;
+	height: auto;
+}
+.ProjectsPage .projectCard ul {
+	list-style-type: none;
+	padding-left: 12px;
+}
+.ProjectsPage .projectCard a {
+	padding: 0.5em;
+	color: #005cb9;
+	background-color: transparent;
+	text-decoration: none;
+	border: 1px solid #005cb9;
+	border-radius: 4px;
+	text-align: center;
+	margin: 0.25em;
+}
+.ProjectsPage .projectCard a:hover {
+	background-color: #005cb9;
+	color: #fafafa;
+}
+.projectCard .projectDetails {
+	margin: 10px 0 10px 0;
+}

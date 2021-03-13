@@ -1,0 +1,75 @@
+nav {
+	float: right;
+}
+nav > button {
+	border: none;
+	background-color: transparent;
+}
+.NavOpen button:focus {
+	outline: none;
+}
+.navIcon {
+	cursor: pointer;
+}
+.NavBox .navIcon {
+	width: 25px;
+	height: 25px;
+}
+
+.NavBox {
+	position: absolute;
+	top: 2em;
+	right: 2em;
+	z-index: 999;
+	width: 350px;
+	padding: 1em;
+	box-sizing: border-box;
+	border-radius: 5px;
+	background-color: #fafafa;
+}
+.mobile .NavBox {
+	left: 2em;
+	width: auto;
+}
+.NavBox button {
+	float: right;
+	border: none;
+	background-color: transparent;
+	padding-top: 7px;
+}
+.NavBox ul {
+	list-style-type: none;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	padding-left: 1.5em;
+}
+.NavBox a {
+	text-decoration: none;
+	color: #111115;
+	font-size: 2em;
+}
+.NavBox a:hover {
+	color: #005cb9;
+}
+
+/* Nav transition */
+.navTrans-enter {
+	opacity: 0;
+	transform: translate(20em, -20em) scale(0);
+}
+.navTrans-enter-active {
+	opacity: 1;
+	transform: translate(0em, 0em) scale(1);
+	transition: opacity 500ms, transform 200ms, scale 500ms;
+	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+.navTrans-exit {
+	opacity: 1;
+	transform: translate(0em, 0em) scale(1);
+}
+.navTrans-exit-active {
+	opacity: 0;
+	transition: opacity 200ms;
+}

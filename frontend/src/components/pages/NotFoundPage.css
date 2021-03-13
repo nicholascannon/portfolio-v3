@@ -1,0 +1,16 @@
+.NotFoundPage {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.NotFoundPage a {
+	color: #005cb9;
+}
+
+.NotFoundPage #brand {
+	margin: 2em;
+	position: absolute;
+	top: 0;
+	left: 0;
+}

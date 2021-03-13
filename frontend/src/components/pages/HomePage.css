@@ -1,0 +1,36 @@
+#rect {
+	position: relative;
+	width: calc(1.25 * 180vw);
+	height: 35vh;
+	background-color: #005cb9;
+	transform: translate(-90vw, 80px) rotate(4deg);
+	z-index: -1;
+}
+
+#headers {
+	position: relative;
+	top: -15vh;
+	padding-left: 2.5em;
+}
+#headers h1 {
+	font-size: 3em;
+}
+#headers p {
+	font-size: 1.5em;
+	color: #369aff;
+}
+
+/* Mobile sizes */
+.mobile #headers {
+	padding-left: 0;
+}
+.mobile #headers h1 {
+	font-size: 2em;
+}
+.mobile #headers p {
+	font-size: 1.25em;
+}
+.mobile #rect {
+	height: 25vh;
+	transform: translate(-15vw, 35px) rotate(4deg);
+}

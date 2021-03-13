@@ -1,0 +1,112 @@
+#App {
+	width: 100%;
+	min-height: 100vh;
+	padding: 2em;
+
+	display: flex;
+	flex-direction: column;
+}
+#App.mobile {
+	padding: 1em;
+}
+
+header {
+	overflow: auto; /* clearfix */
+	flex: 0;
+}
+
+#brand {
+	text-decoration: none;
+	color: #fff;
+	font-weight: bold;
+	font-size: 1.5em;
+}
+#brand:hover {
+	color: #005cb9;
+}
+
+.social-links {
+	flex: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.social-links a {
+	float: right;
+}
+.social-links span {
+	color: #fff;
+	padding-left: 1em;
+}
+.social-links span:hover {
+	color: #005cb9;
+}
+.social-links p {
+	color: #fff;
+	display: inline;
+}
+.mobile .social-links p {
+	font-size: 0.7em;
+}
+
+@media (max-width: 320px) {
+	#brand {
+		font-size: 1.4em;
+	}
+}
+
+/* App wide form styles */
+form input,
+form textarea,
+form button {
+	width: 100%;
+	resize: none;
+	padding: 10px;
+	font-size: 1em;
+	border: 1px solid #c4c4c4;
+	border-radius: 10px;
+	outline: none;
+	margin: 0.5em 0 0.5em 0;
+}
+form input:focus,
+form button:focus,
+form textarea:focus {
+	border: 1px solid #005cb9;
+}
+
+form button[type='submit'] {
+	background-color: transparent;
+}
+form button[type='submit']:hover {
+	background-color: #005cb9;
+	color: #fafafa;
+	cursor: pointer;
+}
+.formError {
+	color: #ff0000;
+}
+.formSuccess {
+	color: #41b115;
+}
+
+/* Page Animations */
+.page-enter,
+.page-appear {
+	opacity: 0;
+	transform: scale(1.1);
+}
+.page-enter-active,
+.page-appear-active {
+	opacity: 1;
+	transform: scale(1);
+	transition: opacity 300ms, transform 300ms;
+}
+.page-exit {
+	opacity: 1;
+	transform: scale(1);
+}
+.page-exit-active {
+	opacity: 0;
+	transform: scale(0.9);
+	transition: opacity 300ms, transform 300ms;
+}

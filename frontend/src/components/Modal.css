@@ -1,0 +1,82 @@
+.Modal {
+	position: fixed;
+	z-index: 999;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	box-sizing: border-box;
+	margin: 8em;
+	padding: 2em;
+
+	background-color: #fafafa;
+	border-radius: 10px;
+	color: #000;
+
+	display: flex;
+	flex-direction: column;
+}
+.Modal .ModalHeader {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	margin-bottom: 0.5em;
+}
+
+.Modal .closeBtn {
+	border: none;
+	background: transparent;
+}
+.Modal .closeBtn img {
+	width: 25px;
+	height: 25px;
+	cursor: pointer;
+}
+.Modal .closeBtn:focus {
+	outline: none;
+}
+
+.Modal .ModalBody {
+	margin-top: 2em;
+	flex: 1;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+.ModalBtn {
+	cursor: pointer;
+	border: none;
+	background: transparent;
+	color: #fff;
+	font-weight: bold;
+	font-size: 1em;
+}
+.ModalBtn:hover {
+	color: #005cb9;
+}
+
+.tablet .Modal {
+	margin: 1em 8em 1em 8em;
+}
+.mobile .Modal {
+	margin: 3em;
+}
+
+/* Modal Transition */
+.ModalFade-enter,
+.ModalFade-appear {
+	transform: translateY(-40vh);
+}
+.ModalFade-enter-active,
+.ModalFade-appear-active {
+	transform: translateY(0vh);
+	transition: transform 200ms;
+}
+.ModalFade-exit {
+	transform: translateY(0vh);
+}
+.ModalFade-exit-active {
+	transform: translateY(100vh);
+	transition: transform 200ms;
+}

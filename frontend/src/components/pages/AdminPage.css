@@ -1,0 +1,49 @@
+.AdminPageLogin {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.AdminPageLogin .loginBox {
+	background-color: #fafafa;
+	color: #000;
+	padding: 1em;
+	border-radius: 10px;
+}
+.AdminPageLogin .loginBox h1 {
+	padding-bottom: 0.5em;
+}
+.AdminPage {
+	display: flex;
+}
+.AdminPage .adminBox {
+	background-color: #eeeeee;
+	color: #000;
+	box-sizing: border-box;
+	padding: 1em;
+	flex: 1;
+	border-radius: 10px;
+}
+
+/* Modal Styles for admin page */
+.AdminPage .Modal {
+	box-shadow: 0px 4px 12px #7a7a7a;
+}
+.AdminPage .ModalBtn {
+	border: 1px solid #c4c4c4;
+	border-radius: 10px;
+	background: transparent;
+	padding: 10px;
+	width: 100%;
+	outline: none;
+	margin: 0.5em 0 0.5em 0;
+	color: #000;
+	font-weight: unset;
+}
+.AdminPage .ModalBtn:focus {
+	border: 1px solid #005cb9;
+}
+.AdminPage .ModalBtn:hover {
+	background-color: #005cb9;
+	color: #fafafa;
+	cursor: pointer;
+}

@@ -1,0 +1,86 @@
+.AboutPage {
+	display: flex;
+}
+.AboutPage > div {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.AboutPage .content h2 {
+	font-size: 1.5rem;
+}
+.AboutPage .content a {
+	background-color: transparent;
+	color: #fff;
+	padding: 5px 15px 5px 15px;
+	min-width: 25%;
+	margin-right: 5%;
+	font-size: 0.9em;
+	font-weight: lighter;
+	border: 1px solid #fff;
+	border-radius: 50px;
+	text-decoration: none;
+	text-align: center;
+}
+.AboutPage .content a:hover {
+	background-color: #fff;
+	color: #000000;
+	cursor: pointer;
+}
+
+.AboutPage .profileImg {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.AboutPage .profileImg img {
+	width: 90%;
+	padding: 2em;
+}
+.AboutPage .content {
+	flex: 1;
+	font-size: 1.5em;
+}
+
+.AboutPage .rect {
+	position: fixed;
+	z-index: -1;
+	width: calc(1.25 * 150vw);
+	height: 60vh;
+	background-color: #005cb9;
+	transform: translate(-40vw, 200px) rotate(-15deg);
+}
+
+@media (max-width: 1200px) {
+	.AboutPage .content {
+		font-size: 1.25em;
+	}
+}
+@media (max-width: 1000px) {
+	.AboutPage > div {
+		flex-direction: column;
+	}
+	.AboutPage .aboutButtons {
+		display: flex;
+		justify-content: space-evenly;
+	}
+	.AboutPage .content a {
+		padding: 10px 10px 10px 10px;
+		margin: 0;
+	}
+}
+@media (max-width: 500px) {
+	.AboutPage .rect {
+		height: 30vh;
+	}
+}
+@media (max-width: 400px) {
+	.AboutPage .content {
+		font-size: 1em;
+	}
+	.AboutPage .profileImg img {
+		padding: 0em;
+	}
+}

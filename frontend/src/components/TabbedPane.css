@@ -1,0 +1,31 @@
+.TabbedPane {
+	height: 100%;
+}
+
+/* tabContent */
+.TabbedPane .tabContent {
+	box-sizing: border-box;
+	padding: 1em 0 1em 0;
+	display: none;
+	overflow-x: scroll;
+}
+.TabbedPane .tabContent.visible {
+	display: block;
+}
+
+/* tablink */
+.TabbedPane .tabs .tabLink {
+	border: none;
+	background: transparent;
+	font-size: 1em;
+	padding: 0.5em;
+	margin-right: 0.5em;
+	cursor: pointer;
+}
+.TabbedPane .tabs .tabLink:hover,
+.TabbedPane .tabs .tabLink.selected {
+	background-color: #005cb9;
+	border-radius: 10px;
+	color: #fff;
+	outline: none;
+}
