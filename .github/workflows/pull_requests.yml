@@ -33,6 +33,5 @@ jobs:
           command: preview
           stack-name: prod
           work-dir: infra
-          comment-on-pr: true
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
