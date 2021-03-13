@@ -37,7 +37,10 @@ const syncDirObjs = (dir: string, bucket: aws.s3.Bucket, folder: string | undefi
         key: folder === undefined ? f : `${folder}/${f}`,
         source: new pulumi.asset.FileAsset(fPath),
         contentType: mime.getType(fPath) || undefined,
-        cacheControl: f === 'index.html' ? 'no-store' : 'public' // never cache index.html
+        cacheControl: f === 'index.html' ? 'no-store' : 'public', // never cache index.html
+        tags: {
+          project: `portfolio-${stack}`
+        }
       });
     }
   }
