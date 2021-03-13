@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Switch, withRouter, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { CSSTransition } from 'react-transition-group';
-import Particels from 'react-particles-js';
+import Particles from 'react-particles-js';
 import particleSettings from './particleSettings';
 import FontAwesome from 'react-fontawesome';
 import ReactGA from 'react-ga';
@@ -64,7 +64,7 @@ class App extends React.Component {
 	render() {
 		return (
 			<React.Fragment>
-				<Particels
+				<Particles
 					style={{ position: 'fixed', top: '0', right: '0', zIndex: '-1' }}
 					params={particleSettings}
 				/>
