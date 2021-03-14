@@ -74,45 +74,30 @@ const feBucketPolicy = new aws.s3.BucketPolicy(`portfolio-bucket-policy-${stack}
 const AboutTable = new aws.dynamodb.Table("portfolio-about-table", {
   attributes: [
     { name: "id", type: "S" },
-    { name: "heading", type: "S" },
-    { name: "subHeading", type: "S" },
-    { name: "body", type: "S" },
   ],
   hashKey: "id",
-  rangeKey: "heading",
   readCapacity: 5,
   writeCapacity: 5,
   tags: {
     project: `portfolio-${stack}`
   }
 });
-
 const AdminTable = new aws.dynamodb.Table("portfolio-admin-table", {
   attributes: [
     { name: "id", type: "S" },
-    { name: "email", type: "S" },
-    { name: "password", type: "S" },
   ],
   hashKey: "id",
-  rangeKey: "email",
   readCapacity: 5,
   writeCapacity: 5,
   tags: {
     project: `portfolio-${stack}`
   }
 });
-
 const ProjectTable = new aws.dynamodb.Table("portfolio-project-table", {
   attributes: [
     { name: "id", type: "S" },
-    { name: "name", type: "S" },
-    { name: "body", type: "S" },
-    { name: "tech", type: "S" },
-    { name: "githubUrl", type: "S" },
-    { name: "liveUrl", type: "S" },
   ],
   hashKey: "id",
-  rangeKey: "name",
   readCapacity: 5,
   writeCapacity: 5,
   tags: {
