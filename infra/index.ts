@@ -79,6 +79,7 @@ const AboutTable = new aws.dynamodb.Table("portfolio-about-table", {
     { name: "body", type: "S" },
   ],
   hashKey: "id",
+  rangeKey: "heading",
   readCapacity: 5,
   writeCapacity: 5,
   tags: {
@@ -93,6 +94,7 @@ const AdminTable = new aws.dynamodb.Table("portfolio-admin-table", {
     { name: "password", type: "S" },
   ],
   hashKey: "id",
+  rangeKey: "email",
   readCapacity: 5,
   writeCapacity: 5,
   tags: {
@@ -110,6 +112,7 @@ const ProjectTable = new aws.dynamodb.Table("portfolio-project-table", {
     { name: "liveUrl", type: "S" },
   ],
   hashKey: "id",
+  rangeKey: "name",
   readCapacity: 5,
   writeCapacity: 5,
   tags: {
