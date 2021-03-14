@@ -79,9 +79,8 @@ const AboutTable = new aws.dynamodb.Table("portfolio-about-table", {
     { name: "body", type: "S" },
   ],
   hashKey: "id",
-  // 25 - free tier
-  readCapacity: 25,
-  writeCapacity: 25,
+  readCapacity: 5,
+  writeCapacity: 5,
   tags: {
     project: `portfolio-${stack}`
   }
@@ -94,9 +93,8 @@ const AdminTable = new aws.dynamodb.Table("portfolio-admin-table", {
     { name: "password", type: "S" },
   ],
   hashKey: "id",
-  // 25 - free tier
-  readCapacity: 25,
-  writeCapacity: 25,
+  readCapacity: 5,
+  writeCapacity: 5,
   tags: {
     project: `portfolio-${stack}`
   }
@@ -107,14 +105,13 @@ const ProjectTable = new aws.dynamodb.Table("portfolio-project-table", {
     { name: "id", type: "S" },
     { name: "name", type: "S" },
     { name: "body", type: "S" },
-    { name: "tech", type: "SS" },
+    { name: "tech", type: "S" },
     { name: "githubUrl", type: "S" },
     { name: "liveUrl", type: "S" },
   ],
   hashKey: "id",
-  // 25 - free tier
-  readCapacity: 25,
-  writeCapacity: 25,
+  readCapacity: 5,
+  writeCapacity: 5,
   tags: {
     project: `portfolio-${stack}`
   }
