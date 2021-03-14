@@ -67,5 +67,58 @@ const feBucketPolicy = new aws.s3.BucketPolicy(`portfolio-bucket-policy-${stack}
   }))
 });
 
+//------------------------------------------------------------------------------- 
+// DYNAMODB SETUP
+//------------------------------------------------------------------------------- 
+
+const AboutTable = new aws.dynamodb.Table("portfolio-about-table", {
+  attributes: [
+    { name: "id", type: "S" },
+    { name: "heading", type: "S" },
+    { name: "subHeading", type: "S" },
+    { name: "body", type: "S" },
+  ],
+  hashKey: "id",
+  // 25 - free tier
+  readCapacity: 25,
+  writeCapacity: 25,
+  tags: {
+    project: `portfolio-${stack}`
+  }
+});
+
+const AdminTable = new aws.dynamodb.Table("portfolio-admin-table", {
+  attributes: [
+    { name: "id", type: "S" },
+    { name: "email", type: "S" },
+    { name: "password", type: "S" },
+  ],
+  hashKey: "id",
+  // 25 - free tier
+  readCapacity: 25,
+  writeCapacity: 25,
+  tags: {
+    project: `portfolio-${stack}`
+  }
+});
+
+const ProjectTable = new aws.dynamodb.Table("portfolio-project-table", {
+  attributes: [
+    { name: "id", type: "S" },
+    { name: "name", type: "S" },
+    { name: "body", type: "S" },
+    { name: "tech", type: "SS" },
+    { name: "githubUrl", type: "S" },
+    { name: "liveUrl", type: "S" },
+  ],
+  hashKey: "id",
+  // 25 - free tier
+  readCapacity: 25,
+  writeCapacity: 25,
+  tags: {
+    project: `portfolio-${stack}`
+  }
+});
+
 export const frontendBucketName = feBucket.id;
 export const websiteUrl = feBucket.websiteEndpoint;
