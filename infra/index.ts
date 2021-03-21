@@ -1,5 +1,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
+import * as awsx from "@pulumi/awsx";
 import * as fs from "fs";
 import * as path from "path";
 import * as mime from "mime";
@@ -169,6 +170,18 @@ const getBlobFunc = new aws.lambda.Function(`portfolio-f-get-blob-${stack}`, {
   }
 });
 
+//------------------------------------------------------------------------------- 
+// API SETUP
+//------------------------------------------------------------------------------- 
+const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
+  routes: [{
+    path: "/",
+    method: "GET",
+    eventHandler: getBlobFunc
+  }]
+})
+
 export const frontendBucketName = feBucket.id;
 export const websiteUrl = feBucket.websiteEndpoint;
 export const getBlobArn = getBlobFunc.name;
+export const apiUrl = api.url;
