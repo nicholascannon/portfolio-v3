@@ -1,3 +1,4 @@
 config:
+  Portfolio:aws-account: "696091413426"
   aws:region: ap-southeast-2
   pulumi:template: aws-typescript
