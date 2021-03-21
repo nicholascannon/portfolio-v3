@@ -15,8 +15,8 @@ const Response = (status, body, headers) => ({
 
 const getBlob = async (event, context) => {
 	try {
-		const projects = await db.scan({TableName: 'projects'});
-		const about = await db.scan({TableName: 'about'});
+		const projects = await db.scan({TableName: `${process.env.TABLE_PREFIX}-projects`});
+		const about = await db.scan({TableName: `${process.env.TABLE_PREFIX}-about`});
 
 		const projectsStatus = projects.$metadata.httpStatusCode;
 		const aboutStatus = about.$metadata.httpStatusCode;
