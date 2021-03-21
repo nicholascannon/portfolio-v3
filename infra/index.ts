@@ -184,3 +184,4 @@ const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
 export const frontendBucketName = feBucket.id;
 export const websiteUrl = feBucket.websiteEndpoint;
 export const getBlobArn = getBlobFunc.name;
+export const apiUrl = api.url;
