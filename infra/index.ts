@@ -178,7 +178,8 @@ const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
     path: "/",
     method: "GET",
     eventHandler: getBlobFunc
-  }]
+  }],
+  stageName: stack
 })
 
 export const frontendBucketName = feBucket.id;

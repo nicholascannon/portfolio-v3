@@ -1,21 +1,9 @@
 /**
  * Project Actions
  */
-import { SAVE_PROJECT, EDIT_PROJECT, GET_PROJECTS, NEW_ERROR, DELETE_PROJECT } from './types';
+import { SAVE_PROJECT, EDIT_PROJECT, NEW_ERROR, DELETE_PROJECT } from './types';
 import axios from 'axios';
 import { API } from './globals';
-
-export const getProjects = () => dispatch => {
-	axios
-		.get(API + '/projects/')
-		.then(res => dispatch({ type: GET_PROJECTS, payload: res.data }))
-		.catch(err =>
-			dispatch({
-				type: NEW_ERROR,
-				payload: { msg: err.response.data.msg, code: err.response.status, id: GET_PROJECTS }
-			})
-		);
-};
 
 export const editProject = project => (dispatch, getState) => {
 	axios
