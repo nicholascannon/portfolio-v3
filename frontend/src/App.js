@@ -12,13 +12,10 @@ import { getBlob } from './actions';
 import {
 	HomePage,
 	AboutPage,
-	ContactPage,
 	SkillsPage,
 	ProjectsPage,
-	AdminPage,
 	NotFoundPage
 } from './components/pages';
-import Nav from './components/Nav';
 
 import './App.css';
 
