@@ -16,9 +16,9 @@ export default function QuickLinks() {
 				<Link to="/skills" activeStyle={{ color: '#005cb9' }}>
 					SKILLS
 				</Link>
-				<Link to="/contact" activeStyle={{ color: '#005cb9' }}>
+				{/* <Link to="/contact" activeStyle={{ color: '#005cb9' }}>
 					CONTACT
-				</Link>
+				</Link> */}
 			</div>
 		</div>
 	);

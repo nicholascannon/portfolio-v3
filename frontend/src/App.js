@@ -7,38 +7,30 @@ import particleSettings from './particleSettings';
 import FontAwesome from 'react-fontawesome';
 import ReactGA from 'react-ga';
 
-import { load_user } from './actions/authActions';
-import { getAbout } from './actions/adminActions';
-import { getProjects } from './actions/projectActions';
+import { getBlob } from './actions';
 
 import {
 	HomePage,
 	AboutPage,
-	ContactPage,
 	SkillsPage,
 	ProjectsPage,
-	AdminPage,
 	NotFoundPage
 } from './components/pages';
-import Nav from './components/Nav';
 
 import './App.css';
 
 const routes = [
 	{ path: '/', Component: <HomePage /> },
 	{ path: '/about', Component: <AboutPage /> },
-	{ path: '/contact', Component: <ContactPage /> },
+	// { path: '/contact', Component: <ContactPage /> },
 	{ path: '/skills', Component: <SkillsPage /> },
 	{ path: '/projects', Component: <ProjectsPage /> },
-	{ path: '/admin', Component: <AdminPage /> }
+	// { path: '/admin', Component: <AdminPage /> }
 ];
 
 class App extends React.Component {
 	componentDidMount() {
-		this.props.load_user();
-		this.props.getAbout();
-		this.props.getProjects();
-
+		this.props.getBlob();
 		ReactGA.pageview(window.location.pathname);
 	}
 
@@ -74,7 +66,7 @@ class App extends React.Component {
 							NICHOLAS CANNON
 						</Link>
 					) : null}
-					<Nav />
+					{/* <Nav /> */}
 				</header>
 				<Switch>
 					{routes.map(({ path, Component }) => (
@@ -114,4 +106,4 @@ class App extends React.Component {
 
 const mapStateToProps = state => ({});
 
-export default withRouter(connect(mapStateToProps, { load_user, getAbout, getProjects })(App));
+export default withRouter(connect(mapStateToProps, { getBlob })(App));
