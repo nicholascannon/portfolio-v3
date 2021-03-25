@@ -10,22 +10,26 @@ const config = new pulumi.Config();
 const reactBuildDir = "../frontend/build";
 const accountId = config.require("aws-account");
 
-//------------------------------------------------------------------------------- 
+//-------------------------------------------------------------------------------
 // FRONTEND SETUP
-//------------------------------------------------------------------------------- 
+//-------------------------------------------------------------------------------
 
 const feBucket = new aws.s3.Bucket(`portfolio-bucket-${stack}`, {
   acl: "public-read",
   website: {
     indexDocument: "index.html",
-    errorDocument: "index.html"
+    errorDocument: "index.html",
   },
   tags: {
-    project: `portfolio-${stack}`
-  }
+    project: `portfolio-${stack}`,
+  },
 });
 
-const syncDirObjs = (dir: string, bucket: aws.s3.Bucket, folder: string | undefined = undefined) => {
+const syncDirObjs = (
+  dir: string,
+  bucket: aws.s3.Bucket,
+  folder: string | undefined = undefined
+) => {
   for (let f of fs.readdirSync(dir)) {
     if (f === ".DS_Store") continue;
 
@@ -40,10 +44,10 @@ const syncDirObjs = (dir: string, bucket: aws.s3.Bucket, folder: string | undefi
         key: folder === undefined ? f : `${folder}/${f}`,
         source: new pulumi.asset.FileAsset(fPath),
         contentType: mime.getType(fPath) || undefined,
-        cacheControl: f === 'index.html' ? 'no-store' : 'public', // never cache index.html
+        cacheControl: f === "index.html" ? "no-store" : "public", // never cache index.html
         tags: {
-          project: `portfolio-${stack}`
-        }
+          project: `portfolio-${stack}`,
+        },
       });
     }
   }
@@ -53,80 +57,77 @@ const syncDirObjs = (dir: string, bucket: aws.s3.Bucket, folder: string | undefi
 syncDirObjs(reactBuildDir, feBucket);
 
 // create bucket policy to allow all objs to be readable
-const feBucketPolicy = new aws.s3.BucketPolicy(`portfolio-bucket-policy-${stack}`, {
-  bucket: feBucket.id,
-  policy: pulumi.all([feBucket.bucket]).apply(([bucketName]) => JSON.stringify({
-    Version: "2012-10-17",
-    Statement: [{
-      Effect: "Allow",
-      Principal: "*",
-      Action: [
-        "s3:GetObject"
-      ],
-      Resource: [
-        `arn:aws:s3:::${bucketName}/*`
-      ]
-    }]
-  }))
-});
+const feBucketPolicy = new aws.s3.BucketPolicy(
+  `portfolio-bucket-policy-${stack}`,
+  {
+    bucket: feBucket.id,
+    policy: pulumi.all([feBucket.bucket]).apply(([bucketName]) =>
+      JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Principal: "*",
+            Action: ["s3:GetObject"],
+            Resource: [`arn:aws:s3:::${bucketName}/*`],
+          },
+        ],
+      })
+    ),
+  }
+);
 
-//------------------------------------------------------------------------------- 
+//-------------------------------------------------------------------------------
 // DYNAMODB SETUP
-//------------------------------------------------------------------------------- 
+//-------------------------------------------------------------------------------
 const tablePrefix = `portfolio-${stack}`;
 const AboutTable = new aws.dynamodb.Table("portfolio-about-table", {
   name: `${tablePrefix}-about`,
-  attributes: [
-    { name: "id", type: "S" },
-  ],
+  attributes: [{ name: "id", type: "S" }],
   hashKey: "id",
   readCapacity: 5,
   writeCapacity: 5,
   tags: {
-    project: `portfolio-${stack}`
-  }
+    project: `portfolio-${stack}`,
+  },
 });
 const AdminTable = new aws.dynamodb.Table("portfolio-admin-table", {
   name: `${tablePrefix}-admin`,
-  attributes: [
-    { name: "id", type: "S" },
-  ],
+  attributes: [{ name: "id", type: "S" }],
   hashKey: "id",
   readCapacity: 5,
   writeCapacity: 5,
   tags: {
-    project: `portfolio-${stack}`
-  }
+    project: `portfolio-${stack}`,
+  },
 });
 const ProjectTable = new aws.dynamodb.Table("portfolio-project-table", {
   name: `${tablePrefix}-projects`,
-  attributes: [
-    { name: "id", type: "S" },
-  ],
+  attributes: [{ name: "id", type: "S" }],
   hashKey: "id",
   readCapacity: 5,
   writeCapacity: 5,
   tags: {
-    project: `portfolio-${stack}`
-  }
+    project: `portfolio-${stack}`,
+  },
 });
 
 const dynamoPolicy = new aws.iam.Policy("portfolio-db-policy", {
   policy: JSON.stringify({
     Version: "2012-10-17",
-    Statement: [{
-      Effect: "Allow",
-      Action: [
-        "dynamodb:Scan"
-      ],
-      Resource: `arn:aws:dynamodb:ap-southeast-2:${accountId}:table/${tablePrefix}*`
-    }]
-  })
+    Statement: [
+      {
+        Effect: "Allow",
+        Action: ["dynamodb:Scan"],
+        Resource: `arn:aws:dynamodb:ap-southeast-2:${accountId}:table/${tablePrefix}*`,
+      },
+    ],
+  }),
 });
 
-//------------------------------------------------------------------------------- 
+//-------------------------------------------------------------------------------
 // LAMBDA SETUP
-//------------------------------------------------------------------------------- 
+//-------------------------------------------------------------------------------
 const lambdaRole = new aws.iam.Role(`lambda-execution-role-${stack}`, {
   assumeRolePolicy: JSON.stringify({
     Version: "2012-10-17",
@@ -134,24 +135,31 @@ const lambdaRole = new aws.iam.Role(`lambda-execution-role-${stack}`, {
       {
         Effect: "Allow",
         Principal: {
-          Service: "lambda.amazonaws.com"
+          Service: "lambda.amazonaws.com",
         },
-        Action: "sts:AssumeRole"
-      }
-    ]
+        Action: "sts:AssumeRole",
+      },
+    ],
   }),
   tags: {
-    project: `portfolio-${stack}`
+    project: `portfolio-${stack}`,
+  },
+});
+const dbAttachment = new aws.iam.RolePolicyAttachment(
+  "lambda-db-role-attachment",
+  {
+    role: lambdaRole.name,
+    policyArn: dynamoPolicy.arn,
   }
-});
-const dbAttachment = new aws.iam.RolePolicyAttachment("lambda-db-role-attachment", {
-  role: lambdaRole.name,
-  policyArn: dynamoPolicy.arn
-});
-const basicExcAttachment = new aws.iam.RolePolicyAttachment("lambda-basic-exc-attachment", {
-  role: lambdaRole.name,
-  policyArn: "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-});
+);
+const basicExcAttachment = new aws.iam.RolePolicyAttachment(
+  "lambda-basic-exc-attachment",
+  {
+    role: lambdaRole.name,
+    policyArn:
+      "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+  }
+);
 
 const getBlobFunc = new aws.lambda.Function(`portfolio-f-get-blob-${stack}`, {
   role: lambdaRole.arn,
@@ -162,25 +170,27 @@ const getBlobFunc = new aws.lambda.Function(`portfolio-f-get-blob-${stack}`, {
   code: new pulumi.asset.FileArchive("../functions/getBlob"),
   environment: {
     variables: {
-      TABLE_PREFIX: tablePrefix
-    }
+      TABLE_PREFIX: tablePrefix,
+    },
   },
   tags: {
-    project: `portfolio-${stack}`
-  }
+    project: `portfolio-${stack}`,
+  },
 });
 
-//------------------------------------------------------------------------------- 
+//-------------------------------------------------------------------------------
 // API SETUP
-//------------------------------------------------------------------------------- 
+//-------------------------------------------------------------------------------
 const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
-  routes: [{
-    path: "/",
-    method: "GET",
-    eventHandler: getBlobFunc
-  }],
-  stageName: stack
-})
+  routes: [
+    {
+      path: "/",
+      method: "GET",
+      eventHandler: getBlobFunc,
+    },
+  ],
+  stageName: stack,
+});
 
 export const frontendBucketName = feBucket.id;
 export const websiteUrl = feBucket.websiteEndpoint;
