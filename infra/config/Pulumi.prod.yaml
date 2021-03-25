@@ -1,4 +1,5 @@
 config:
   Portfolio:aws-account: "696091413426"
+  Portfolio:hostedZoneId: Z04395608SQRCH9GIVM9
   aws:region: ap-southeast-2
   pulumi:template: aws-typescript
