@@ -11,6 +11,7 @@ import git from './git.svg';
 import sql from './sql.svg';
 import express from './express.svg';
 
+/* eslint import/no-anonymous-default-export: [2, {"allowArray": true}] */
 export default [
 	{ src: python, name: 'Python' },
 	{ src: django, name: 'Django (and Flask)' },
