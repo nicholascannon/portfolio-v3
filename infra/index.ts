@@ -192,6 +192,34 @@ const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
   stageName: stack,
 });
 
+//-------------------------------------------------------------------------------
+// RECORDS SETUP
+//-------------------------------------------------------------------------------
+const zoneId = config.require("hostedZoneId"); 
+const homeRec = new aws.route53.Record(`portfolio-record-home-a-${stack}`, {
+  zoneId,
+  name: "niccannon.com",
+  type: "A",
+  ttl: 3600,
+  records: ["165.22.50.81"]
+}, {import: `${zoneId}_niccannon.com_A`});
+
+const homeRecCNAME = new aws.route53.Record(`portfolio-record-home-cname-${stack}`, {
+  zoneId,
+  name: "www.niccannon.com",
+  type: "CNAME",
+  ttl: 3600,
+  records: ["165.22.50.81"]
+}, {import: `${zoneId}_www.niccannon.com_CNAME`});
+
+const apiRec = new aws.route53.Record(`portfolio-record-api-a-${stack}`, {
+  zoneId,
+  name: "api.niccannon.com",
+  type: "A",
+  ttl: 3600,
+  records: ["165.22.50.81"]
+}, {import: `${zoneId}_api.niccannon.com_A`});
+
 export const frontendBucketName = feBucket.id;
 export const websiteUrl = feBucket.websiteEndpoint;
 export const getBlobArn = getBlobFunc.name;
