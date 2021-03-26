@@ -195,32 +195,55 @@ const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
 //-------------------------------------------------------------------------------
 // RECORDS SETUP
 //-------------------------------------------------------------------------------
-const zoneId = config.require("hostedZoneId"); 
+const zoneId = config.require("hostedZoneId");
 const homeRec = new aws.route53.Record(`portfolio-record-home-a-${stack}`, {
   zoneId,
   name: "niccannon.com",
   type: "A",
   ttl: 3600,
-  records: ["165.22.50.81"]
+  records: ["165.22.50.81"],
 });
 
-const homeRecCNAME = new aws.route53.Record(`portfolio-record-home-cname-${stack}`, {
-  zoneId,
-  name: "www.niccannon.com",
-  type: "CNAME",
-  ttl: 3600,
-  records: ["niccannon.com"]
-});
+const homeRecCNAME = new aws.route53.Record(
+  `portfolio-record-home-cname-${stack}`,
+  {
+    zoneId,
+    name: "www.niccannon.com",
+    type: "CNAME",
+    ttl: 3600,
+    records: ["niccannon.com"],
+  }
+);
 
 const apiRec = new aws.route53.Record(`portfolio-record-api-a-${stack}`, {
   zoneId,
   name: "api.niccannon.com",
   type: "A",
   ttl: 3600,
-  records: ["165.22.50.81"]
+  records: ["165.22.50.81"],
 });
 
-export const frontendBucketName = feBucket.id;
-export const websiteUrl = feBucket.websiteEndpoint;
-export const getBlobArn = getBlobFunc.name;
+//-------------------------------------------------------------------------------
+// CERT SETUP
+//-------------------------------------------------------------------------------
+const cert = new aws.acm.Certificate(`portfolio-cert-${stack}`, {
+  domainName: "niccannon.com",
+  validationMethod: "DNS",
+  tags: {
+    project: `portfolio-${stack}`,
+  },
+});
+
+const certValidation = new aws.acm.CertificateValidation(
+  `portfolio-cert-val-${stack}`,
+  {
+    certificateArn: cert.arn,
+    validationRecordFqdns: pulumi
+      .all([homeRec, homeRecCNAME, apiRec])
+      .apply((records) => records.map((record) => record.fqdn)),
+  }
+);
+
+export const bucketUrl = feBucket.websiteEndpoint;
 export const apiUrl = api.url;
+export const certArn = certValidation.certificateArn;
