@@ -228,6 +228,7 @@ const apiRec = new aws.route53.Record(`portfolio-record-api-a-${stack}`, {
 //-------------------------------------------------------------------------------
 const cert = new aws.acm.Certificate(`portfolio-cert-${stack}`, {
   domainName: "niccannon.com",
+  subjectAlternativeNames: ["www.niccannon.com"], // required!
   validationMethod: "DNS",
   tags: {
     project: `portfolio-${stack}`,
