@@ -3,4 +3,4 @@
  */
 
 export const API =
-	process.env.NODE_ENV === 'development' ? '' : 'https://www.api.niccannon.com/api';
+	process.env.NODE_ENV === 'development' ? '' : '/prod';

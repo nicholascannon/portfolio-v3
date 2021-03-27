@@ -4,7 +4,7 @@ import { API } from './globals';
 
 export const getBlob = () => dispatch => {
 	axios
-		.get(API + '/')
+		.get(API + '/blob')
 		.then(res => {
 			dispatch({ type: GET_PROJECTS, payload: res.data.projects });
 			dispatch({ type: GET_ABOUT, payload: res.data.about });

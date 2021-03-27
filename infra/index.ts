@@ -185,7 +185,7 @@ const getBlobFunc = new aws.lambda.Function(`portfolio-f-get-blob-${stack}`, {
 const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
   routes: [
     {
-      path: "/",
+      path: "/blob",
       method: "GET",
       eventHandler: getBlobFunc,
     },
@@ -240,7 +240,7 @@ const validationOpts = cert.domainValidationOptions.apply((dvo) =>
     name: rec.resourceRecordName,
     value: rec.resourceRecordValue,
     type: rec.resourceRecordType,
-    domainName: rec.domainName
+    domainName: rec.domainName,
   }))
 );
 
@@ -268,6 +268,84 @@ const certValidation = new aws.acm.CertificateValidation(
   }
 );
 
+//-------------------------------------------------------------------------------
+// CDN SETUP
+//-------------------------------------------------------------------------------
+const distribution = new aws.cloudfront.Distribution(
+  `portolio-distribution-${stack}`,
+  {
+    origins: [
+      {
+        domainName: feBucket.bucketRegionalDomainName,
+        originId: "frontend",
+      },
+      {
+        // the url contains the stage path (the stack)
+        domainName: api.url.apply((url) =>
+          url.replace("https://", "").replace(`/${stack}/`, "")
+        ),
+        // originPath: pulumi.interpolate`/${stack}`,
+        customOriginConfig: {
+          httpPort: 80,
+          httpsPort: 443,
+          originSslProtocols: ["TLSv1.2"],
+          originProtocolPolicy: "https-only"
+        },
+        originId: "api",
+      },
+    ],
+    enabled: true,
+    priceClass: "PriceClass_100",
+    defaultRootObject: "index.html",
+    defaultCacheBehavior: {
+      allowedMethods: ["GET", "HEAD", "OPTIONS"],
+      cachedMethods: ["GET", "HEAD"],
+      targetOriginId: "frontend",
+      forwardedValues: {
+        queryString: false,
+        cookies: {
+          forward: "none",
+        },
+      },
+      viewerProtocolPolicy: "redirect-to-https",
+      minTtl: 0,
+      defaultTtl: 3600,
+      maxTtl: 3600,
+    },
+    orderedCacheBehaviors: [
+      {
+        pathPattern: `/${stack}/*`,
+        allowedMethods: ["GET", "HEAD", "OPTIONS"],
+        cachedMethods: ["GET", "HEAD"],
+        targetOriginId: "api",
+        forwardedValues: {
+          queryString: true,
+          cookies: {
+            forward: "none",
+          },
+        },
+        // No cache
+        minTtl: 0,
+        maxTtl: 0,
+        defaultTtl: 0,
+        viewerProtocolPolicy: "redirect-to-https",
+      },
+    ],
+    restrictions: {
+      geoRestriction: {
+        restrictionType: "none",
+      },
+    },
+    viewerCertificate: {
+      cloudfrontDefaultCertificate: true,
+    },
+    tags: {
+      project: `portfolio-${stack}`,
+    },
+  }
+);
+
 export const bucketUrl = feBucket.websiteEndpoint;
 export const apiUrl = api.url;
 export const certArn = certValidation.certificateArn;
+export const distributionDomain = distribution.domainName;
