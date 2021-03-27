@@ -9,6 +9,7 @@ const stack = pulumi.getStack();
 const config = new pulumi.Config();
 const reactBuildDir = "../frontend/build";
 const accountId = config.require("aws-account");
+const zoneId = config.require("hostedZoneId");
 
 //-------------------------------------------------------------------------------
 // FRONTEND SETUP
@@ -195,7 +196,6 @@ const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
 //-------------------------------------------------------------------------------
 // RECORDS SETUP
 //-------------------------------------------------------------------------------
-const zoneId = config.require("hostedZoneId");
 const homeRec = new aws.route53.Record(`portfolio-record-home-a-${stack}`, {
   zoneId,
   name: "niccannon.com",
@@ -235,13 +235,36 @@ const cert = new aws.acm.Certificate(`portfolio-cert-${stack}`, {
   },
 });
 
+const validationOpts = cert.domainValidationOptions.apply((dvo) =>
+  dvo.map((rec) => ({
+    name: rec.resourceRecordName,
+    value: rec.resourceRecordValue,
+    type: rec.resourceRecordType,
+    domainName: rec.domainName
+  }))
+);
+
+const valRecords = validationOpts.apply((opts) =>
+  opts.map(
+    (opt) =>
+      new aws.route53.Record(`portfolio-val-rec-${opt.domainName}-${stack}`, {
+        allowOverwrite: true,
+        name: opt.name,
+        records: [opt.value],
+        ttl: 60,
+        type: opt.type,
+        zoneId,
+      })
+  )
+);
+
 const certValidation = new aws.acm.CertificateValidation(
   `portfolio-cert-val-${stack}`,
   {
     certificateArn: cert.arn,
-    validationRecordFqdns: pulumi
-      .all([homeRec, homeRecCNAME, apiRec])
-      .apply((records) => records.map((record) => record.fqdn)),
+    validationRecordFqdns: valRecords.apply((recs) =>
+      recs.map((record) => record.fqdn)
+    ),
   }
 );
 
