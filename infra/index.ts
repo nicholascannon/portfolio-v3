@@ -266,6 +266,7 @@ const distribution = new aws.cloudfront.Distribution(
     customErrorResponses: [{
       // required to send responses to react router
       errorCode: 404,
+      responseCode: 404,
       responsePagePath: "/index.html"
     }],
     restrictions: {
@@ -274,7 +275,8 @@ const distribution = new aws.cloudfront.Distribution(
       },
     },
     viewerCertificate: {
-      acmCertificateArn: certArn
+      acmCertificateArn: certArn,
+      sslSupportMethod: "sni-only"
     },
     tags: {
       project: `portfolio-${stack}`,
@@ -289,8 +291,11 @@ const homeRec = new aws.route53.Record(`portfolio-record-home-a-${stack}`, {
   zoneId,
   name: "niccannon.com",
   type: "A",
-  ttl: 300,
-  records: [distribution.domainName],
+  aliases: [{
+    evaluateTargetHealth: false, // false for simple routing
+    name: distribution.domainName,
+    zoneId: distribution.hostedZoneId
+  }]
 });
 
 const homeRecCNAME = new aws.route53.Record(
