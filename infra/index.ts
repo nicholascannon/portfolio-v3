@@ -7,7 +7,9 @@ import * as mime from "mime";
 
 const stack = pulumi.getStack();
 const config = new pulumi.Config();
-const certStack = new pulumi.StackReference("nicholascannon1/portfolio-cert/prod");
+const certStack = new pulumi.StackReference(
+  "nicholascannon1/portfolio-cert/prod"
+);
 
 const reactBuildDir = "../frontend/build";
 const certArn = certStack.getOutput("certArn");
@@ -19,7 +21,7 @@ const zoneId = config.require("hostedZoneId");
 //-------------------------------------------------------------------------------
 
 const feBucket = new aws.s3.Bucket(`portfolio-bucket-${stack}`, {
-  acl: "public-read",
+  acl: "private",
   website: {
     indexDocument: "index.html",
     errorDocument: "index.html",
@@ -60,18 +62,21 @@ const syncDirObjs = (
 // sync built react app with s3 bucket
 syncDirObjs(reactBuildDir, feBucket);
 
-// create bucket policy to allow all objs to be readable
+const originAccessIdentity = new aws.cloudfront.OriginAccessIdentity(`portfolio-frontend-oai-${stack}`, {
+  comment: "OAI for accessing portfolio frontend bucket"
+});
+
 const feBucketPolicy = new aws.s3.BucketPolicy(
   `portfolio-bucket-policy-${stack}`,
   {
     bucket: feBucket.id,
-    policy: pulumi.all([feBucket.bucket]).apply(([bucketName]) =>
+    policy: pulumi.all([feBucket.bucket, originAccessIdentity.iamArn]).apply(([bucketName, oiaArn]) =>
       JSON.stringify({
         Version: "2012-10-17",
         Statement: [
           {
             Effect: "Allow",
-            Principal: "*",
+            Principal: oiaArn,
             Action: ["s3:GetObject"],
             Resource: [`arn:aws:s3:::${bucketName}/*`],
           },
@@ -84,6 +89,7 @@ const feBucketPolicy = new aws.s3.BucketPolicy(
 //-------------------------------------------------------------------------------
 // DYNAMODB SETUP
 //-------------------------------------------------------------------------------
+
 const tablePrefix = `portfolio-${stack}`;
 const AboutTable = new aws.dynamodb.Table("portfolio-about-table", {
   name: `${tablePrefix}-about`,
@@ -132,6 +138,7 @@ const dynamoPolicy = new aws.iam.Policy("portfolio-db-policy", {
 //-------------------------------------------------------------------------------
 // LAMBDA SETUP
 //-------------------------------------------------------------------------------
+
 const lambdaRole = new aws.iam.Role(`lambda-execution-role-${stack}`, {
   assumeRolePolicy: JSON.stringify({
     Version: "2012-10-17",
@@ -185,6 +192,7 @@ const getBlobFunc = new aws.lambda.Function(`portfolio-f-get-blob-${stack}`, {
 //-------------------------------------------------------------------------------
 // API SETUP
 //-------------------------------------------------------------------------------
+
 const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
   routes: [
     {
@@ -199,12 +207,16 @@ const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
 //-------------------------------------------------------------------------------
 // CDN SETUP
 //-------------------------------------------------------------------------------
+
 const distribution = new aws.cloudfront.Distribution(
   `portolio-distribution-${stack}`,
   {
     origins: [
       {
         domainName: feBucket.bucketRegionalDomainName,
+        s3OriginConfig: {
+          originAccessIdentity: originAccessIdentity.cloudfrontAccessIdentityPath
+        },
         originId: "frontend",
       },
       {
@@ -217,7 +229,7 @@ const distribution = new aws.cloudfront.Distribution(
           httpPort: 80,
           httpsPort: 443,
           originSslProtocols: ["TLSv1.2"],
-          originProtocolPolicy: "https-only"
+          originProtocolPolicy: "https-only",
         },
         originId: "api",
       },
@@ -225,10 +237,7 @@ const distribution = new aws.cloudfront.Distribution(
     enabled: true,
     priceClass: "PriceClass_100",
     defaultRootObject: "index.html",
-    aliases: [
-      "niccannon.com",
-      "www.niccannon.com"
-    ],
+    aliases: ["niccannon.com", "www.niccannon.com"],
     defaultCacheBehavior: {
       allowedMethods: ["GET", "HEAD", "OPTIONS"],
       cachedMethods: ["GET", "HEAD"],
@@ -263,12 +272,14 @@ const distribution = new aws.cloudfront.Distribution(
         viewerProtocolPolicy: "redirect-to-https",
       },
     ],
-    customErrorResponses: [{
-      // required to send responses to react router
-      errorCode: 404,
-      responseCode: 404,
-      responsePagePath: "/index.html"
-    }],
+    customErrorResponses: [
+      {
+        // required to send responses to react router
+        errorCode: 404,
+        responseCode: 404,
+        responsePagePath: "/index.html",
+      },
+    ],
     restrictions: {
       geoRestriction: {
         restrictionType: "none",
@@ -276,7 +287,7 @@ const distribution = new aws.cloudfront.Distribution(
     },
     viewerCertificate: {
       acmCertificateArn: certArn,
-      sslSupportMethod: "sni-only"
+      sslSupportMethod: "sni-only",
     },
     tags: {
       project: `portfolio-${stack}`,
@@ -287,15 +298,18 @@ const distribution = new aws.cloudfront.Distribution(
 //-------------------------------------------------------------------------------
 // RECORDS SETUP
 //-------------------------------------------------------------------------------
+
 const homeRec = new aws.route53.Record(`portfolio-record-home-a-${stack}`, {
   zoneId,
   name: "niccannon.com",
   type: "A",
-  aliases: [{
-    evaluateTargetHealth: false, // false for simple routing
-    name: distribution.domainName,
-    zoneId: distribution.hostedZoneId
-  }]
+  aliases: [
+    {
+      evaluateTargetHealth: false, // false for simple routing
+      name: distribution.domainName,
+      zoneId: distribution.hostedZoneId,
+    },
+  ],
 });
 
 const homeRecCNAME = new aws.route53.Record(
