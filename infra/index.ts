@@ -323,14 +323,6 @@ const homeRecCNAME = new aws.route53.Record(
   }
 );
 
-const apiRec = new aws.route53.Record(`portfolio-record-api-a-${stack}`, {
-  zoneId,
-  name: "api.niccannon.com",
-  type: "A",
-  ttl: 3600,
-  records: ["165.22.50.81"],
-});
-
 export const bucketUrl = feBucket.websiteEndpoint;
 export const apiUrl = api.url;
 export const distributionDomain = distribution.domainName;
