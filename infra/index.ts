@@ -7,7 +7,10 @@ import * as mime from "mime";
 
 const stack = pulumi.getStack();
 const config = new pulumi.Config();
+const certStack = new pulumi.StackReference("nicholascannon1/portfolio-cert/prod");
+
 const reactBuildDir = "../frontend/build";
+const certArn = certStack.getOutput("certArn");
 const accountId = config.require("aws-account");
 const zoneId = config.require("hostedZoneId");
 
@@ -194,36 +197,6 @@ const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
 });
 
 //-------------------------------------------------------------------------------
-// RECORDS SETUP
-//-------------------------------------------------------------------------------
-const homeRec = new aws.route53.Record(`portfolio-record-home-a-${stack}`, {
-  zoneId,
-  name: "niccannon.com",
-  type: "A",
-  ttl: 3600,
-  records: ["165.22.50.81"],
-});
-
-const homeRecCNAME = new aws.route53.Record(
-  `portfolio-record-home-cname-${stack}`,
-  {
-    zoneId,
-    name: "www.niccannon.com",
-    type: "CNAME",
-    ttl: 3600,
-    records: ["niccannon.com"],
-  }
-);
-
-const apiRec = new aws.route53.Record(`portfolio-record-api-a-${stack}`, {
-  zoneId,
-  name: "api.niccannon.com",
-  type: "A",
-  ttl: 3600,
-  records: ["165.22.50.81"],
-});
-
-//-------------------------------------------------------------------------------
 // CDN SETUP
 //-------------------------------------------------------------------------------
 const distribution = new aws.cloudfront.Distribution(
@@ -252,6 +225,10 @@ const distribution = new aws.cloudfront.Distribution(
     enabled: true,
     priceClass: "PriceClass_100",
     defaultRootObject: "index.html",
+    aliases: [
+      "niccannon.com",
+      "www.niccannon.com"
+    ],
     defaultCacheBehavior: {
       allowedMethods: ["GET", "HEAD", "OPTIONS"],
       cachedMethods: ["GET", "HEAD"],
@@ -286,13 +263,18 @@ const distribution = new aws.cloudfront.Distribution(
         viewerProtocolPolicy: "redirect-to-https",
       },
     ],
+    customErrorResponses: [{
+      // required to send responses to react router
+      errorCode: 404,
+      responsePagePath: "/index.html"
+    }],
     restrictions: {
       geoRestriction: {
         restrictionType: "none",
       },
     },
     viewerCertificate: {
-      cloudfrontDefaultCertificate: true,
+      acmCertificateArn: certArn
     },
     tags: {
       project: `portfolio-${stack}`,
@@ -300,6 +282,37 @@ const distribution = new aws.cloudfront.Distribution(
   }
 );
 
+//-------------------------------------------------------------------------------
+// RECORDS SETUP
+//-------------------------------------------------------------------------------
+const homeRec = new aws.route53.Record(`portfolio-record-home-a-${stack}`, {
+  zoneId,
+  name: "niccannon.com",
+  type: "A",
+  ttl: 300,
+  records: [distribution.domainName],
+});
+
+const homeRecCNAME = new aws.route53.Record(
+  `portfolio-record-home-cname-${stack}`,
+  {
+    zoneId,
+    name: "www.niccannon.com",
+    type: "CNAME",
+    ttl: 300,
+    records: ["niccannon.com"],
+  }
+);
+
+const apiRec = new aws.route53.Record(`portfolio-record-api-a-${stack}`, {
+  zoneId,
+  name: "api.niccannon.com",
+  type: "A",
+  ttl: 3600,
+  records: ["165.22.50.81"],
+});
+
 export const bucketUrl = feBucket.websiteEndpoint;
 export const apiUrl = api.url;
 export const distributionDomain = distribution.domainName;
+export const url = homeRec.fqdn;
