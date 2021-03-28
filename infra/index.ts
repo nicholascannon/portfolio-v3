@@ -76,7 +76,9 @@ const feBucketPolicy = new aws.s3.BucketPolicy(
         Statement: [
           {
             Effect: "Allow",
-            Principal: oiaArn,
+            Principal: {
+              AWS: oiaArn
+            },
             Action: ["s3:GetObject"],
             Resource: [`arn:aws:s3:::${bucketName}/*`],
           },
@@ -327,3 +329,4 @@ export const bucketUrl = feBucket.websiteEndpoint;
 export const apiUrl = api.url;
 export const distributionDomain = distribution.domainName;
 export const url = homeRec.fqdn;
+export const oai = originAccessIdentity.iamArn;
