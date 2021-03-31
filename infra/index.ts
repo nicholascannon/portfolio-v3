@@ -62,29 +62,34 @@ const syncDirObjs = (
 // sync built react app with s3 bucket
 syncDirObjs(reactBuildDir, feBucket);
 
-const originAccessIdentity = new aws.cloudfront.OriginAccessIdentity(`portfolio-frontend-oai-${stack}`, {
-  comment: "OAI for accessing portfolio frontend bucket"
-});
+const originAccessIdentity = new aws.cloudfront.OriginAccessIdentity(
+  `portfolio-frontend-oai-${stack}`,
+  {
+    comment: "OAI for accessing portfolio frontend bucket",
+  }
+);
 
 const feBucketPolicy = new aws.s3.BucketPolicy(
   `portfolio-bucket-policy-${stack}`,
   {
     bucket: feBucket.id,
-    policy: pulumi.all([feBucket.bucket, originAccessIdentity.iamArn]).apply(([bucketName, oiaArn]) =>
-      JSON.stringify({
-        Version: "2012-10-17",
-        Statement: [
-          {
-            Effect: "Allow",
-            Principal: {
-              AWS: oiaArn
+    policy: pulumi
+      .all([feBucket.bucket, originAccessIdentity.iamArn])
+      .apply(([bucketName, oiaArn]) =>
+        JSON.stringify({
+          Version: "2012-10-17",
+          Statement: [
+            {
+              Effect: "Allow",
+              Principal: {
+                AWS: oiaArn,
+              },
+              Action: ["s3:GetObject"],
+              Resource: [`arn:aws:s3:::${bucketName}/*`],
             },
-            Action: ["s3:GetObject"],
-            Resource: [`arn:aws:s3:::${bucketName}/*`],
-          },
-        ],
-      })
-    ),
+          ],
+        })
+      ),
   }
 );
 
@@ -217,7 +222,8 @@ const distribution = new aws.cloudfront.Distribution(
       {
         domainName: feBucket.bucketRegionalDomainName,
         s3OriginConfig: {
-          originAccessIdentity: originAccessIdentity.cloudfrontAccessIdentityPath
+          originAccessIdentity:
+            originAccessIdentity.cloudfrontAccessIdentityPath,
         },
         originId: "frontend",
       },
@@ -237,7 +243,6 @@ const distribution = new aws.cloudfront.Distribution(
       },
     ],
     enabled: true,
-    priceClass: "PriceClass_100",
     defaultRootObject: "index.html",
     aliases: ["niccannon.com", "www.niccannon.com"],
     defaultCacheBehavior: {
@@ -328,5 +333,4 @@ const homeRecCNAME = new aws.route53.Record(
 export const bucketUrl = feBucket.websiteEndpoint;
 export const apiUrl = api.url;
 export const distributionDomain = distribution.domainName;
-export const url = homeRec.fqdn;
 export const oai = originAccessIdentity.iamArn;
