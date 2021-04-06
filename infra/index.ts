@@ -16,10 +16,7 @@ const certArn = certStack.getOutput("certArn");
 const accountId = config.require("aws-account");
 const zoneId = config.require("hostedZoneId");
 
-//-------------------------------------------------------------------------------
-// FRONTEND SETUP
-//-------------------------------------------------------------------------------
-
+// Frontend
 const feBucket = new aws.s3.Bucket(`portfolio-bucket-${stack}`, {
   acl: "private",
   website: {
@@ -93,10 +90,7 @@ const feBucketPolicy = new aws.s3.BucketPolicy(
   }
 );
 
-//-------------------------------------------------------------------------------
-// DYNAMODB SETUP
-//-------------------------------------------------------------------------------
-
+// DB tables
 const tablePrefix = `portfolio-${stack}`;
 const AboutTable = new aws.dynamodb.Table("portfolio-about-table", {
   name: `${tablePrefix}-about`,
@@ -142,10 +136,7 @@ const dynamoPolicy = new aws.iam.Policy("portfolio-db-policy", {
   }),
 });
 
-//-------------------------------------------------------------------------------
-// LAMBDA SETUP
-//-------------------------------------------------------------------------------
-
+// Lambda
 const lambdaRole = new aws.iam.Role(`lambda-execution-role-${stack}`, {
   assumeRolePolicy: JSON.stringify({
     Version: "2012-10-17",
@@ -196,10 +187,7 @@ const getBlobFunc = new aws.lambda.Function(`portfolio-f-get-blob-${stack}`, {
   },
 });
 
-//-------------------------------------------------------------------------------
-// API SETUP
-//-------------------------------------------------------------------------------
-
+// API
 const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
   routes: [
     {
@@ -211,10 +199,7 @@ const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
   stageName: stack,
 });
 
-//-------------------------------------------------------------------------------
-// CDN SETUP
-//-------------------------------------------------------------------------------
-
+// CDN
 const distribution = new aws.cloudfront.Distribution(
   `portolio-distribution-${stack}`,
   {
@@ -232,7 +217,6 @@ const distribution = new aws.cloudfront.Distribution(
         domainName: api.url.apply((url) =>
           url.replace("https://", "").replace(`/${stack}/`, "")
         ),
-        // originPath: pulumi.interpolate`/${stack}`,
         customOriginConfig: {
           httpPort: 80,
           httpsPort: 443,
@@ -302,10 +286,7 @@ const distribution = new aws.cloudfront.Distribution(
   }
 );
 
-//-------------------------------------------------------------------------------
-// RECORDS SETUP
-//-------------------------------------------------------------------------------
-
+// DNS records
 const homeRec = new aws.route53.Record(`portfolio-record-home-a-${stack}`, {
   zoneId,
   name: "niccannon.com",
