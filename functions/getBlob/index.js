@@ -24,12 +24,14 @@ const getBlob = async (event, context) => {
 
     const projectsStatus = projects.$metadata.httpStatusCode;
     const aboutStatus = about.$metadata.httpStatusCode;
-    if (projectsStatus !== 200)
+    if (projectsStatus !== 200) {
       throw new Error(
         `Error fetching projects, status code = ${projectsStatus}`
       );
-    if (projectsStatus !== 200)
+    }
+    if (aboutStatus !== 200) {
       throw new Error(`Error fetching about, status code = ${aboutStatus}`);
+    }
 
     return Response(200, {
       about: about.Items.length ? unmarshall(about.Items[0]) : null,
