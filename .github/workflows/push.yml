@@ -25,13 +25,13 @@ jobs:
           aws-region: ap-southeast-2 # Sydney
 
       - name: Install Pulumi
-        uses: pulumi/action-install-pulumi-cli@v1.0.1
+        uses: pulumi/action-install-pulumi-cli@v1
 
       # install deps and build react app
       - run: npm run bootstrap
       - run: npm run build:frontend
 
-      - uses: pulumi/actions@v2
+      - uses: pulumi/actions@v3
         with:
           command: up
           stack-name: prod
