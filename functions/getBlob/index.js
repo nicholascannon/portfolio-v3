@@ -34,12 +34,12 @@ const getBlob = async (event, context) => {
     }
 
     return Response(200, {
-      about: about.Items.length ? unmarshall(about.Items[0]) : null,
+      about: about.Items.length ? unmarshall(about.Items[0]) : [],
       projects: projects.Items.map((project) => unmarshall(project)),
     });
   } catch (e) {
     console.error(e.message);
-    return Response(400, { message: e.message });
+    return Response(500, { message: "Oops, an error has occurred!" });
   }
 };
 
