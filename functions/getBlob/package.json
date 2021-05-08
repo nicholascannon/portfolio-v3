@@ -1,9 +1,17 @@
 {
   "name": "getblob",
   "private": true,
-  "main": "index.js",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.8.1",
-    "@aws-sdk/util-dynamodb": "^3.9.0"
+    "aws-sdk": "^2.903.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.76",
+    "@types/aws-sdk": "^2.7.0",
+    "@types/node": "^15.0.2",
+    "typescript": "^4.2.4"
   }
 }

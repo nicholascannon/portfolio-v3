@@ -5,7 +5,9 @@
   "scripts": {
     "deploy": "cd infra && pulumi up",
     "frontend": "cd frontend && npm start",
+    "build": "./scripts/build.sh",
     "build:frontend": "cd frontend && npm run build",
+    "build:getBlob": "cd functions/getBlob && npm run build",
     "bootstrap": "./scripts/bootstrap.sh"
   }
 }
