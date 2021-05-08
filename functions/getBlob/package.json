@@ -3,7 +3,6 @@
   "private": true,
   "main": "index.js",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.8.1",
-    "@aws-sdk/util-dynamodb": "^3.9.0"
+    "aws-sdk": "^2.903.0"
   }
 }
