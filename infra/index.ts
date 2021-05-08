@@ -176,7 +176,7 @@ const getBlobFunc = new aws.lambda.Function(`portfolio-f-get-blob-${stack}`, {
   memorySize: 128,
   runtime: "nodejs14.x",
   handler: "index.getBlob",
-  code: new pulumi.asset.FileArchive("../functions/getBlob"),
+  code: new pulumi.asset.FileArchive("../functions/getBlob/dist"),
   environment: {
     variables: {
       TABLE_PREFIX: tablePrefix,
