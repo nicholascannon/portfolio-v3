@@ -165,8 +165,7 @@ const basicExcAttachment = new aws.iam.RolePolicyAttachment(
   "lambda-basic-exc-attachment",
   {
     role: lambdaRole.name,
-    policyArn:
-      "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+    policyArn: aws.iam.ManagedPolicies.AWSLambdaBasicExecutionRole,
   }
 );
 

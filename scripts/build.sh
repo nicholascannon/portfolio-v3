@@ -10,6 +10,6 @@ cd ..
 echo "building getBlob lambda..."
 cd functions/getBlob
 npm run build
-rm -rf node_modules/ && npm ci --only=production --silent
+rm -rf node_modules/ && npm ci --only=production --quite
 mv node_modules dist
 echo "getBlob lambda built!"
