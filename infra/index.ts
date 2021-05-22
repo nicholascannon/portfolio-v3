@@ -201,12 +201,29 @@ const api = new aws.apigatewayv2.Api(`portfolio-api-${stack}`, {
   protocolType: "HTTP",
 });
 
+const apiDeployment = new aws.apigatewayv2.Deployment(`portfolio-api-deployment-${stack}`, {
+  apiId: api.id,
+});
+
+const apiStage = new aws.apigatewayv2.Stage(`portfolio-api-stage-${stack}`, {
+  apiId: api.id,
+  name: stack,
+  deploymentId: apiDeployment.id,
+  autoDeploy: true,
+});
+
 const getBlobIntegration = new aws.apigatewayv2.Integration(`portfolio-get-blob-integration-${stack}`, {
   apiId: api.id,
   connectionType: "INTERNET",
   integrationType: "AWS_PROXY",
   integrationMethod: "GET",
   integrationUri: getBlobFunc.invokeArn,
+});
+
+const getBlobRoute = new aws.apigatewayv2.Route(`portfolio-get-blob-route-${stack}`, {
+  apiId: api.id,
+  routeKey: "$default",
+  target: pulumi.interpolate`integrations/${getBlobIntegration.id}`,
 });
 
 // CDN
