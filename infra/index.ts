@@ -1,6 +1,5 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
-import * as awsx from "@pulumi/awsx";
 import * as fs from "fs";
 import * as path from "path";
 import * as mime from "mime";
@@ -187,15 +186,41 @@ const getBlobFunc = new aws.lambda.Function(`portfolio-f-get-blob-${stack}`, {
 });
 
 // API
-const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
-  routes: [
-    {
-      path: "/blob",
-      method: "GET",
-      eventHandler: getBlobFunc,
-    },
-  ],
-  stageName: stack,
+const api = new aws.apigatewayv2.Api(`portfolio-api-${stack}`, {
+  protocolType: "HTTP",
+});
+
+const apiDeployment = new aws.apigatewayv2.Deployment(`portfolio-api-deployment-${stack}`, {
+  apiId: api.id,
+});
+
+const apiStage = new aws.apigatewayv2.Stage(`portfolio-api-stage-${stack}`, {
+  apiId: api.id,
+  name: stack,
+  deploymentId: apiDeployment.id,
+  autoDeploy: true,
+});
+
+const getBlobIntegration = new aws.apigatewayv2.Integration(`portfolio-get-blob-integration-${stack}`, {
+  apiId: api.id,
+  connectionType: "INTERNET",
+  integrationType: "AWS_PROXY",
+  integrationMethod: "GET",
+  integrationUri: getBlobFunc.invokeArn,
+});
+
+const getBlobRoute = new aws.apigatewayv2.Route(`portfolio-get-blob-route-${stack}`, {
+  apiId: api.id,
+  routeKey: "GET /",
+  target: pulumi.interpolate`integrations/${getBlobIntegration.id}`,
+});
+
+const getBlobPermission = new aws.lambda.Permission(`portfolio-get-blob-permission-${stack}`, {
+  action: "lambda:InvokeFunction",
+  function: getBlobFunc.name,
+  principal: "apigateway.amazonaws.com",
+  // ARN/stage/METHOD_HTTP_VERB/Resource-path
+  sourceArn: pulumi.interpolate`${api.executionArn}/*/*/*`
 });
 
 // CDN
@@ -213,9 +238,7 @@ const distribution = new aws.cloudfront.Distribution(
       },
       {
         // the url contains the stage path (the stack)
-        domainName: api.url.apply((url) =>
-          url.replace("https://", "").replace(`/${stack}/`, "")
-        ),
+        domainName: api.apiEndpoint,
         customOriginConfig: {
           httpPort: 80,
           httpsPort: 443,
@@ -311,6 +334,6 @@ const homeRecCNAME = new aws.route53.Record(
 );
 
 export const bucketUrl = feBucket.websiteEndpoint;
-export const apiUrl = api.url;
+export const apiUrl = api.apiEndpoint;
 export const distributionDomain = distribution.domainName;
 export const oai = originAccessIdentity.iamArn;
