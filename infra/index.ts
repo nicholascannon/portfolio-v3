@@ -262,7 +262,7 @@ const distribution = new aws.cloudfront.Distribution(
       {
         // the url contains the stage path (the stack)
         domainName: apiDeployment.invokeUrl.apply((url) =>
-          url.replace("https://", "").replace(`/${stack}/`, "")
+          url.replace("https://", "").replace(`/${stack}`, "")
         ),
         customOriginConfig: {
           httpPort: 80,
