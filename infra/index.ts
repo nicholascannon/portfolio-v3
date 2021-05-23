@@ -215,6 +215,14 @@ const getBlobRoute = new aws.apigatewayv2.Route(`portfolio-get-blob-route-${stac
   target: pulumi.interpolate`integrations/${getBlobIntegration.id}`,
 });
 
+const getBlobPermission = new aws.lambda.Permission(`portfolio-get-blob-permission-${stack}`, {
+  action: "lambda:InvokeFunction",
+  function: getBlobFunc.name,
+  principal: "apigateway.amazonaws.com",
+  // ARN/stage/METHOD_HTTP_VERB/Resource-path
+  sourceArn: pulumi.interpolate`${api.executionArn}/*/*/*`
+});
+
 // CDN
 const distribution = new aws.cloudfront.Distribution(
   `portolio-distribution-${stack}`,
