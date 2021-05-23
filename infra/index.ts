@@ -186,17 +186,6 @@ const getBlobFunc = new aws.lambda.Function(`portfolio-f-get-blob-${stack}`, {
 });
 
 // API
-// const api = new awsx.apigateway.API(`portfolio-api-${stack}`, {
-//   routes: [
-//     {
-//       path: "/blob",
-//       method: "GET",
-//       eventHandler: getBlobFunc,
-//     },
-//   ],
-//   stageName: stack,
-// });
-
 const api = new aws.apigatewayv2.Api(`portfolio-api-${stack}`, {
   protocolType: "HTTP",
 });
@@ -222,7 +211,7 @@ const getBlobIntegration = new aws.apigatewayv2.Integration(`portfolio-get-blob-
 
 const getBlobRoute = new aws.apigatewayv2.Route(`portfolio-get-blob-route-${stack}`, {
   apiId: api.id,
-  routeKey: "$default",
+  routeKey: "GET /",
   target: pulumi.interpolate`integrations/${getBlobIntegration.id}`,
 });
 
