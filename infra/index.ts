@@ -6,6 +6,7 @@ import * as mime from "mime";
 
 const stack = pulumi.getStack();
 const config = new pulumi.Config();
+const awsConfig = new pulumi.Config("aws");
 const certStack = new pulumi.StackReference(
   "nicholascannon1/portfolio-cert/prod"
 );
@@ -14,6 +15,7 @@ const reactBuildDir = "../frontend/build";
 const certArn = certStack.getOutput("certArn");
 const accountId = config.require("aws-account");
 const zoneId = config.require("hostedZoneId");
+const region = awsConfig.require("region");
 
 // Frontend
 const feBucket = new aws.s3.Bucket(`portfolio-bucket-${stack}`, {
@@ -101,6 +103,7 @@ const AboutTable = new aws.dynamodb.Table("portfolio-about-table", {
     project: `portfolio-${stack}`,
   },
 });
+
 const AdminTable = new aws.dynamodb.Table("portfolio-admin-table", {
   name: `${tablePrefix}-admin`,
   attributes: [{ name: "id", type: "S" }],
@@ -111,6 +114,7 @@ const AdminTable = new aws.dynamodb.Table("portfolio-admin-table", {
     project: `portfolio-${stack}`,
   },
 });
+
 const ProjectTable = new aws.dynamodb.Table("portfolio-project-table", {
   name: `${tablePrefix}-projects`,
   attributes: [{ name: "id", type: "S" }],
@@ -153,6 +157,7 @@ const lambdaRole = new aws.iam.Role(`lambda-execution-role-${stack}`, {
     project: `portfolio-${stack}`,
   },
 });
+
 const dbAttachment = new aws.iam.RolePolicyAttachment(
   "lambda-db-role-attachment",
   {
@@ -160,6 +165,7 @@ const dbAttachment = new aws.iam.RolePolicyAttachment(
     policyArn: dynamoPolicy.arn,
   }
 );
+
 const basicExcAttachment = new aws.iam.RolePolicyAttachment(
   "lambda-basic-exc-attachment",
   {
@@ -186,42 +192,59 @@ const getBlobFunc = new aws.lambda.Function(`portfolio-f-get-blob-${stack}`, {
 });
 
 // API
-const api = new aws.apigatewayv2.Api(`portfolio-api-${stack}`, {
-  protocolType: "HTTP",
-});
+const api = new aws.apigateway.RestApi(`portfolio-api-${stack}`, {});
 
-const apiDeployment = new aws.apigatewayv2.Deployment(`portfolio-api-deployment-${stack}`, {
-  apiId: api.id,
-});
+const getBlobResource = new aws.apigateway.Resource(
+  `portfolio-get-blob-resource-${stack}`,
+  {
+    restApi: api.id,
+    parentId: api.rootResourceId,
+    pathPart: "blob",
+  }
+);
 
-const apiStage = new aws.apigatewayv2.Stage(`portfolio-api-stage-${stack}`, {
-  apiId: api.id,
-  name: stack,
-  deploymentId: apiDeployment.id,
-  autoDeploy: true,
-});
+const getBlobMethod = new aws.apigateway.Method(
+  `portfolio-get-blob-method-${stack}`,
+  {
+    restApi: api.id,
+    resourceId: getBlobResource.id,
+    httpMethod: "GET",
+    authorization: "NONE",
+  }
+);
 
-const getBlobIntegration = new aws.apigatewayv2.Integration(`portfolio-get-blob-integration-${stack}`, {
-  apiId: api.id,
-  connectionType: "INTERNET",
-  integrationType: "AWS_PROXY",
-  integrationMethod: "GET",
-  integrationUri: getBlobFunc.invokeArn,
-});
+const getBlobIntegration = new aws.apigateway.Integration(
+  `portfolio-get-blob-integration-${stack}`,
+  {
+    restApi: api.id,
+    resourceId: getBlobResource.id,
+    httpMethod: getBlobMethod.httpMethod,
+    type: "AWS_PROXY",
+    integrationHttpMethod: "POST", // lambdas can only be invoked via POST
+    uri: getBlobFunc.invokeArn,
+  }
+);
 
-const getBlobRoute = new aws.apigatewayv2.Route(`portfolio-get-blob-route-${stack}`, {
-  apiId: api.id,
-  routeKey: "GET /",
-  target: pulumi.interpolate`integrations/${getBlobIntegration.id}`,
-});
+const getBlobPermission = new aws.lambda.Permission(
+  `portfolio-get-blob-permission-${stack}`,
+  {
+    action: "lambda:InvokeFunction",
+    function: getBlobFunc.name,
+    principal: "apigateway.amazonaws.com",
+    sourceArn: pulumi.interpolate`${api.executionArn}/*/*/*`, // API_ARN/stage/METHOD_HTTP_VERB/Resource-path
+  }
+);
 
-const getBlobPermission = new aws.lambda.Permission(`portfolio-get-blob-permission-${stack}`, {
-  action: "lambda:InvokeFunction",
-  function: getBlobFunc.name,
-  principal: "apigateway.amazonaws.com",
-  // ARN/stage/METHOD_HTTP_VERB/Resource-path
-  sourceArn: pulumi.interpolate`${api.executionArn}/*/*/*`
-});
+const apiDeployment = new aws.apigateway.Deployment(
+  `portfolio-api-deployment-${stack}`,
+  {
+    restApi: api.id,
+    stageName: stack,
+  },
+  {
+    dependsOn: [getBlobIntegration],
+  }
+);
 
 // CDN
 const distribution = new aws.cloudfront.Distribution(
@@ -238,7 +261,9 @@ const distribution = new aws.cloudfront.Distribution(
       },
       {
         // the url contains the stage path (the stack)
-        domainName: api.apiEndpoint,
+        domainName: apiDeployment.invokeUrl.apply((url) =>
+          url.replace("https://", "").replace(`/${stack}/`, "")
+        ),
         customOriginConfig: {
           httpPort: 80,
           httpsPort: 443,
@@ -334,6 +359,6 @@ const homeRecCNAME = new aws.route53.Record(
 );
 
 export const bucketUrl = feBucket.websiteEndpoint;
-export const apiUrl = api.apiEndpoint;
+export const apiUrl = apiDeployment.invokeUrl;
 export const distributionDomain = distribution.domainName;
 export const oai = originAccessIdentity.iamArn;
