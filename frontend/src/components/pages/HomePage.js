@@ -14,7 +14,7 @@ const HomePage = props => {
 			<div id="rect"></div>
 			<div id="headers">
 				<h1>Nicholas Cannon</h1>
-				<p>Software Engineering / Machine Learning</p>
+				<p>Perth, Western Australia</p>
 			</div>
 			<QuickLinks />
 		</Page>
