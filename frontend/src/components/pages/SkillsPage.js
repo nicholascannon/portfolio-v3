@@ -5,8 +5,6 @@ import React from 'react';
 import Page from './Page';
 import skills from '../../imgs/skills';
 
-import Modal from '../Modal';
-
 import './SkillsPage.css';
 
 const SkillsPage = props => {
@@ -21,7 +19,7 @@ const SkillsPage = props => {
 				))}
 			</div>
 			<div className="rect"></div>
-			<Modal header="More skills" btnText="MORE SKILLS">
+			{/* <Modal header="More skills" btnText="MORE SKILLS">
 				<div>
 					<h3>Languages</h3>
 					<ul>
@@ -83,7 +81,7 @@ const SkillsPage = props => {
 						<li>Asynchronous programming</li>
 					</ul>
 				</div>
-			</Modal>
+			</Modal> */}
 		</Page>
 	);
 };
