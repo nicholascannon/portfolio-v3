@@ -6,7 +6,6 @@ import * as mime from "mime";
 
 const stack = pulumi.getStack();
 const config = new pulumi.Config();
-const awsConfig = new pulumi.Config("aws");
 const certStack = new pulumi.StackReference(
   "nicholascannon1/portfolio-cert/prod"
 );
@@ -15,7 +14,6 @@ const reactBuildDir = "../frontend/build";
 const certArn = certStack.getOutput("certArn");
 const accountId = config.require("aws-account");
 const zoneId = config.require("hostedZoneId");
-const region = awsConfig.require("region");
 
 // Frontend
 const feBucket = new aws.s3.Bucket(`portfolio-bucket-${stack}`, {
