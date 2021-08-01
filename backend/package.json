@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "sls offline start",
+    "dev": "sls offline start --httpPort 8000",
     "deploy": "sls deploy",
     "build": "sls package"
   },
