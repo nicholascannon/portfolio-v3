@@ -5,7 +5,9 @@ import {
 } from "aws-lambda";
 import DynamoDB from "aws-sdk/clients/dynamodb";
 
-const db = new DynamoDB({ region: "ap-southeast-2" });
+const db = process.env.IS_OFFLINE
+  ? new DynamoDB({ region: "localhost", endpoint: "http://localhost:8080" })
+  : new DynamoDB({ region: "ap-southeast-2" });
 const unmarshall = DynamoDB.Converter.unmarshall;
 
 const Response = (status: number, body: any, headers?: any) => ({

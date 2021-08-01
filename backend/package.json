@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "sls offline start --httpPort 8000",
+    "dev": "sls offline start",
     "deploy": "sls deploy",
     "build": "sls package"
   },
@@ -11,6 +11,7 @@
     "@types/aws-sdk": "^2.7.0",
     "@types/node": "^16.4.9",
     "serverless": "^2.52.1",
+    "serverless-dynamodb-local": "^0.2.40",
     "serverless-offline": "^8.0.0",
     "serverless-webpack": "^5.5.1",
     "ts-loader": "^9.2.4",

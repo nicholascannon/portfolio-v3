@@ -5,3 +5,4 @@ build/
 .serverless/
 dist/
 .webpack/
+.dynamodb/

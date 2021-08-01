@@ -1,0 +1,80 @@
+[
+  {
+    "tech": ["C", "OpenMP", "Multi-threading", "Make"],
+    "id": "2",
+    "name": "Matrix Algebra Project (school)",
+    "githubUrl": "https://github.com/nicholascannon1/matrix-algebra",
+    "body": "Command line tool for doing efficient matrix algebra operations such as transpose, matrix multiplication, scalar multiplication and more. Parallelisation implemented with OpenMP."
+  },
+  {
+    "tech": [
+      "React/Redux",
+      "Node",
+      "Nginx",
+      "Docker",
+      "Mongoose",
+      "SendGrid",
+      "Traefik"
+    ],
+    "id": "1",
+    "name": "Portfolio (this site)",
+    "githubUrl": "https://github.com/nicholascannon1/portfolio2.0",
+    "body": "Portfolio website built with the MERN stack. Services deployed on DO with docker and traefik. Has a custom admin panel that enables me to login and change website content without redeploying."
+  },
+  {
+    "tech": [
+      "Django REST Framework",
+      "Channels",
+      "React hooks",
+      "Redux",
+      "Redis"
+    ],
+    "id": "6",
+    "name": "DjChat",
+    "githubUrl": "https://github.com/nicholascannon1/DjChat",
+    "liveUrl": "",
+    "body": "A simple direct messaging web app with user accounts and persistent messaging."
+  },
+  {
+    "tech": [
+      "Python",
+      "Django",
+      "Django REST Framework",
+      "SimpleJWT",
+      "TravisCI"
+    ],
+    "id": "5",
+    "name": "Wall: A lean social media REST API",
+    "githubUrl": "https://github.com/nicholascannon1/wall",
+    "liveUrl": "",
+    "body": "An extremely lean and basic social media REST API built with Django and Django-REST-Framework (DRF). My goal was to build an API with a test driven approach (project has 94% test coverage)."
+  },
+  {
+    "tech": [
+      "Python",
+      "Airflow",
+      "Postgres",
+      "Google Cloud Platform",
+      "Docker"
+    ],
+    "id": "4",
+    "name": "Fitbit Sleep ETL Data Pipeline",
+    "githubUrl": "https://github.com/nicholascannon1/fitbit-sleep-pipeline",
+    "liveUrl": "",
+    "body": "Simple ETL pipeline built using Apache Airflow that extracts my sleep data and daily weather data, stages it in GCS, processes it and stores it in a Postgres db."
+  },
+  {
+    "tech": [
+      "React",
+      "Node",
+      "Docker",
+      "Mongoose",
+      "Google OAuth",
+      "Bootstrap"
+    ],
+    "id": "3",
+    "githubUrl": "https://github.com/nicholascannon1/Mello",
+    "name": "Mello",
+    "body": "A basic Trello clone. Built with the MERN stack, deployed on DO with docker."
+  }
+]
