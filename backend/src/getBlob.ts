@@ -18,7 +18,7 @@ const Response = (status: number, body: any, headers?: any) => ({
   },
 });
 
-export const getBlob: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> =
+export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> =
   async (event, context) => {
     try {
       const projects = await db
@@ -56,4 +56,3 @@ export const getBlob: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> =
       return Response(500, { message: "Oops, an error has occurred!" });
     }
   };
-
