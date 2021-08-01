@@ -38,13 +38,6 @@ functions:
           path: /
           method: get
 
-  index:
-    handler: src/index.handler
-    events:
-      - httpApi:
-          path: /index
-          method: get
-
 # you can add CloudFormation resource templates here
 #resources:
 #  Resources:
