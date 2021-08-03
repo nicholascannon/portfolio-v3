@@ -6,6 +6,7 @@ provider:
   runtime: nodejs14.x
   lambdaHashingVersion: 20201221
   region: ap-southeast-2
+  stackName: portfolio-site
 
   environment:
     TABLE_PREFIX: ${self:custom.tablePrefix}
@@ -23,15 +24,21 @@ package:
   individually: true
 
 plugins:
+  - serverless-s3-sync
   - serverless-webpack
   - serverless-dynamodb-local
   - serverless-offline # must appear last!
 
 custom:
   tablePrefix: portfolio-${sls:stage}
+  feBucketName: portfolio-frontend-${sls:stage}-a23rfd
 
   serverless-offline:
     httpPort: 8000
+
+  s3Sync:
+    - bucketName: ${self:custom.feBucketName}
+      localDir: ../frontend/build/
 
   dynamodb:
     stages:
@@ -59,7 +66,60 @@ functions:
 
 resources:
   Resources:
-    aboutTable:
+
+    FrontendBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.feBucketName}
+        AccessControl: PublicRead
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+        Tags:
+          - Key: 'project'
+            Value: portfolio-${sls:stage}
+      DeletionPolicy: Retain
+
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource: !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref FrontendBucket
+                  - /*
+        Bucket: !Ref FrontendBucket
+
+    # originAccessIdentity:
+    #   Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    #   Properties:
+    #     CloudFrontOriginAccessIdentityConfig:
+    #       Comment: OAI for accessing portfolio frontend bucket
+    
+    # BucketPolicy:
+    #   Type: AWS::S3::BucketPolicy
+    #   Properties:
+    #     PolicyDocument:
+    #       Version: '2012-10-17'
+    #       Statement:
+    #         - Effect: Allow
+    #           Action: 's3:GetObject'
+    #           Resource: !Join
+    #             - ""
+    #             - - !GetAtt FrontendBucket.Arn
+    #               - "/*"
+    #       Principal:
+    #         CanonicalUser: !GetAtt originAccessIdentity.S3CanonicalUserId
+    #     Bucket: !Ref FrontendBucket
+
+    AboutTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:custom.tablePrefix}-about
@@ -73,7 +133,7 @@ resources:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
 
-    projectsTable:
+    ProjectsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:custom.tablePrefix}-projects
@@ -86,3 +146,7 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
+
+  Outputs:
+    FrontendUrl:
+      Value: !GetAtt FrontendBucket.WebsiteURL
