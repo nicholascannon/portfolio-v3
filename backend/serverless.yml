@@ -31,20 +31,19 @@ plugins:
 
 custom:
   tablePrefix: portfolio-${sls:stage}
-  feBucketName: portfolio-frontend-${sls:stage}-a23rfd
 
   serverless-offline:
     httpPort: 8000
 
   s3Sync:
-    - bucketName: ${self:custom.feBucketName}
+    - bucketNameKey: FrontendBucketKey
       localDir: ../frontend/build/
 
   dynamodb:
     stages:
       - dev
     start:
-      port: 8080
+      port: 8001
       migrate: true
       seed: true
       inMemory: true
@@ -66,11 +65,9 @@ functions:
 
 resources:
   Resources:
-
     FrontendBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:custom.feBucketName}
         AccessControl: PublicRead
         WebsiteConfiguration:
           IndexDocument: index.html
@@ -78,51 +75,79 @@ resources:
         Tags:
           - Key: 'project'
             Value: portfolio-${sls:stage}
-      DeletionPolicy: Retain
 
+    originAccessIdentity:
+      Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+      Properties:
+        CloudFrontOriginAccessIdentityConfig:
+          Comment: OAI for accessing portfolio frontend bucket
+    
     BucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
-            - Sid: PublicReadForGetBucketObjects
-              Effect: Allow
-              Principal: '*'
+            - Effect: Allow
               Action: 's3:GetObject'
-              Resource: !Join 
-                - ''
-                - - 'arn:aws:s3:::'
-                  - !Ref FrontendBucket
-                  - /*
+              Principal:
+                CanonicalUser: !GetAtt originAccessIdentity.S3CanonicalUserId
+              Resource: !Join
+                - ""
+                - - !GetAtt FrontendBucket.Arn
+                  - "/*"
         Bucket: !Ref FrontendBucket
 
-    # originAccessIdentity:
-    #   Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    #   Properties:
-    #     CloudFrontOriginAccessIdentityConfig:
-    #       Comment: OAI for accessing portfolio frontend bucket
-    
-    # BucketPolicy:
-    #   Type: AWS::S3::BucketPolicy
-    #   Properties:
-    #     PolicyDocument:
-    #       Version: '2012-10-17'
-    #       Statement:
-    #         - Effect: Allow
-    #           Action: 's3:GetObject'
-    #           Resource: !Join
-    #             - ""
-    #             - - !GetAtt FrontendBucket.Arn
-    #               - "/*"
-    #       Principal:
-    #         CanonicalUser: !GetAtt originAccessIdentity.S3CanonicalUserId
-    #     Bucket: !Ref FrontendBucket
+    # https://github.com/awslabs/aws-cloudformation-templates/blob/master/community/solutions/StaticS3CloudFront.yml
+    Distribution:
+        Type: AWS::CloudFront::Distribution
+        DependsOn: OriginAccessIdentity
+        Properties:
+          DistributionConfig:
+            Origins:
+            - DomainName: !GetAtt FrontendBucket.DomainName
+              Id: frontend
+              S3OriginConfig:
+                OriginAccessIdentity: !Join 
+                  - /
+                  - - origin-access-identity
+                    - cloudfront
+                    - !Ref originAccessIdentity
+            # TODO: API origin
+            Enabled: 'true'
+            DefaultRootObject: index.html
+            # Aliases:
+            # - niccannon.com
+            # - www.niccannon.com
+            DefaultCacheBehavior:
+              AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              TargetOriginId: frontend
+              ForwardedValues:
+                QueryString: 'false'
+                Cookies:
+                  Forward: none
+              ViewerProtocolPolicy: redirect-to-https
+              MinTTL: 0
+              MaxTTL: 3600
+              DefaultTTL: 3600
+            # TODO: CacheBehaviours:
+            CustomErrorResponses:
+            - ErrorCode: 404
+              ResponseCode: 404
+              ResponsePagePath: "/index.html"
+            Restrictions:
+              GeoRestriction:
+                RestrictionType: none
+            ViewerCertificate:
+              # TODO: Setup with ACM cert
+              CloudFrontDefaultCertificate: 'true'
 
     AboutTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:custom.tablePrefix}-about
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -149,4 +174,7 @@ resources:
 
   Outputs:
     FrontendUrl:
-      Value: !GetAtt FrontendBucket.WebsiteURL
+      Value: !GetAtt Distribution.DomainName
+
+    FrontendBucketKey:
+      Value: !Ref FrontendBucket
