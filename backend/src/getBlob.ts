@@ -6,7 +6,7 @@ import {
 import DynamoDB from "aws-sdk/clients/dynamodb";
 
 const db = process.env.IS_OFFLINE
-  ? new DynamoDB({ region: "localhost", endpoint: "http://localhost:8080" })
+  ? new DynamoDB({ region: "localhost", endpoint: "http://localhost:8001" })
   : new DynamoDB({ region: "ap-southeast-2" });
 const unmarshall = DynamoDB.Converter.unmarshall;
 
@@ -42,7 +42,7 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> =
         );
         return Response(500, { message: "Could not fetch list of projects" });
       }
-      if (aboutStatus !== 200 || !about.Items?.length) {
+      if (aboutStatus !== 200) {
         console.error(
           `Error fetching about: status=${aboutStatus}, error=${about.$response.error}`
         );
@@ -50,7 +50,7 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> =
       }
 
       return Response(200, {
-        about: unmarshall(about.Items[0]),
+        about: about.Items?.length ? unmarshall(about.Items[0]) : undefined,
         projects: projects.Items?.map((project) => unmarshall(project)),
       });
     } catch (e) {

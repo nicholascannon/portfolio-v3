@@ -31,6 +31,7 @@ plugins:
 
 custom:
   tablePrefix: portfolio-${sls:stage}
+  hostedZone: Z04395608SQRCH9GIVM9
 
   serverless-offline:
     httpPort: 8000
@@ -39,6 +40,7 @@ custom:
     - bucketNameKey: FrontendBucketKey
       localDir: ../frontend/build/
 
+# https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.NodeJs.02.html
   dynamodb:
     stages:
       - dev
@@ -56,11 +58,11 @@ custom:
             sources: [./seed/projects.json]
 
 functions:
-  get-blob:
+  getBlob:
     handler: src/getBlob.handler
     events:
       - httpApi:
-          path: /blob
+          path: /${sls:stage}/blob
           method: get
 
 resources:
@@ -68,7 +70,7 @@ resources:
     FrontendBucket:
       Type: AWS::S3::Bucket
       Properties:
-        AccessControl: PublicRead
+        AccessControl: Private
         WebsiteConfiguration:
           IndexDocument: index.html
           ErrorDocument: index.html
@@ -90,40 +92,55 @@ resources:
           Statement:
             - Effect: Allow
               Action: 's3:GetObject'
-              Principal:
-                CanonicalUser: !GetAtt originAccessIdentity.S3CanonicalUserId
               Resource: !Join
                 - ""
                 - - !GetAtt FrontendBucket.Arn
                   - "/*"
+              Principal:
+                CanonicalUser: !GetAtt originAccessIdentity.S3CanonicalUserId
         Bucket: !Ref FrontendBucket
 
     # https://github.com/awslabs/aws-cloudformation-templates/blob/master/community/solutions/StaticS3CloudFront.yml
     Distribution:
         Type: AWS::CloudFront::Distribution
-        DependsOn: OriginAccessIdentity
+        DependsOn: originAccessIdentity
         Properties:
           DistributionConfig:
             Origins:
-            - DomainName: !GetAtt FrontendBucket.DomainName
-              Id: frontend
-              S3OriginConfig:
-                OriginAccessIdentity: !Join 
-                  - /
-                  - - origin-access-identity
-                    - cloudfront
-                    - !Ref originAccessIdentity
-            # TODO: API origin
-            Enabled: 'true'
+              - Id: frontend
+                DomainName: !GetAtt FrontendBucket.RegionalDomainName
+                S3OriginConfig:
+                  OriginAccessIdentity: !Join 
+                    - /
+                    - - origin-access-identity
+                      - cloudfront
+                      - !Ref originAccessIdentity
+              - Id: api
+                DomainName: !Join
+                  - ""
+                  - - !Ref HttpApi
+                    - .execute-api.${aws:region}.amazonaws.com
+                CustomOriginConfig:
+                  HTTPPort: 80
+                  HTTPSPort: 443
+                  OriginProtocolPolicy: https-only
+                  OriginSSLProtocols:
+                    - TLSv1.2
+            Enabled: true
+            HttpVersion: http2
             DefaultRootObject: index.html
             # Aliases:
             # - niccannon.com
             # - www.niccannon.com
             DefaultCacheBehavior:
               AllowedMethods:
-              - GET
-              - HEAD
-              - OPTIONS
+                - GET
+                - HEAD
+                - OPTIONS
+              CachedMethods:
+                - GET
+                - HEAD
+              Compress: true
               TargetOriginId: frontend
               ForwardedValues:
                 QueryString: 'false'
@@ -133,11 +150,35 @@ resources:
               MinTTL: 0
               MaxTTL: 3600
               DefaultTTL: 3600
-            # TODO: CacheBehaviours:
+            CacheBehaviors:
+              - PathPattern: "/${sls:stage}/*"
+                TargetOriginId: api
+                AllowedMethods:
+                  - HEAD
+                  - GET
+                  - OPTIONS
+                  - PUT
+                  - PATCH
+                  - DELETE
+                  - POST
+                CachedMethods:
+                  - GET
+                  - HEAD
+                ForwardedValues:
+                  QueryString: true
+                  Cookies:
+                    Forward: none
+                MinTTL: 0
+                MaxTTL: 0
+                DefaultTTL: 0
+                ViewerProtocolPolicy: redirect-to-https
             CustomErrorResponses:
-            - ErrorCode: 404
-              ResponseCode: 404
-              ResponsePagePath: "/index.html"
+              - ErrorCode: 404
+                ResponseCode: 404
+                ResponsePagePath: "/index.html"
+              - ErrorCode: 403
+                ResponseCode: 200
+                ResponsePagePath: "/index.html"
             Restrictions:
               GeoRestriction:
                 RestrictionType: none
@@ -148,6 +189,7 @@ resources:
     AboutTable:
       Type: AWS::DynamoDB::Table
       Properties:
+        TableName: ${self:custom.tablePrefix}-about
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -173,7 +215,7 @@ resources:
           WriteCapacityUnits: 5
 
   Outputs:
-    FrontendUrl:
+    DistributionUrl:
       Value: !GetAtt Distribution.DomainName
 
     FrontendBucketKey:
