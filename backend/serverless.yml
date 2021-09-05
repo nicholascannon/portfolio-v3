@@ -1,5 +1,5 @@
 service: portfolio-backend
-frameworkVersion: '2'
+frameworkVersion: "2"
 
 provider:
   name: aws
@@ -19,7 +19,7 @@ provider:
             - "dynamodb:Scan"
           Resource:
             - "arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:custom.tablePrefix}*"
-      
+
 package:
   individually: true
 
@@ -40,7 +40,6 @@ custom:
     - bucketNameKey: FrontendBucketKey
       localDir: ../frontend/build/
 
-# https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.NodeJs.02.html
   dynamodb:
     stages:
       - dev
@@ -62,10 +61,16 @@ functions:
     handler: src/getBlob.handler
     events:
       - httpApi:
-          path: /${sls:stage}/blob
+          path: /api/blob
           method: get
 
 resources:
+  Conditions:
+    Prod:
+      Fn::Equals:
+        - ${sls:stage}
+        - prod
+
   Resources:
     FrontendBucket:
       Type: AWS::S3::Bucket
@@ -75,7 +80,7 @@ resources:
           IndexDocument: index.html
           ErrorDocument: index.html
         Tags:
-          - Key: 'project'
+          - Key: "project"
             Value: portfolio-${sls:stage}
 
     originAccessIdentity:
@@ -83,15 +88,15 @@ resources:
       Properties:
         CloudFrontOriginAccessIdentityConfig:
           Comment: OAI for accessing portfolio frontend bucket
-    
+
     BucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
         PolicyDocument:
-          Version: '2012-10-17'
+          Version: "2012-10-17"
           Statement:
             - Effect: Allow
-              Action: 's3:GetObject'
+              Action: "s3:GetObject"
               Resource: !Join
                 - ""
                 - - !GetAtt FrontendBucket.Arn
@@ -100,91 +105,115 @@ resources:
                 CanonicalUser: !GetAtt originAccessIdentity.S3CanonicalUserId
         Bucket: !Ref FrontendBucket
 
-    # https://github.com/awslabs/aws-cloudformation-templates/blob/master/community/solutions/StaticS3CloudFront.yml
     Distribution:
-        Type: AWS::CloudFront::Distribution
-        DependsOn: originAccessIdentity
-        Properties:
-          DistributionConfig:
-            Origins:
-              - Id: frontend
-                DomainName: !GetAtt FrontendBucket.RegionalDomainName
-                S3OriginConfig:
-                  OriginAccessIdentity: !Join 
-                    - /
-                    - - origin-access-identity
-                      - cloudfront
-                      - !Ref originAccessIdentity
-              - Id: api
-                DomainName: !Join
-                  - ""
-                  - - !Ref HttpApi
-                    - .execute-api.${aws:region}.amazonaws.com
-                CustomOriginConfig:
-                  HTTPPort: 80
-                  HTTPSPort: 443
-                  OriginProtocolPolicy: https-only
-                  OriginSSLProtocols:
-                    - TLSv1.2
-            Enabled: true
-            HttpVersion: http2
-            DefaultRootObject: index.html
-            # Aliases:
-            # - niccannon.com
-            # - www.niccannon.com
-            DefaultCacheBehavior:
+      Type: AWS::CloudFront::Distribution
+      DependsOn: originAccessIdentity
+      Properties:
+        DistributionConfig:
+          Origins:
+            - Id: frontend
+              DomainName: !GetAtt FrontendBucket.RegionalDomainName
+              S3OriginConfig:
+                OriginAccessIdentity: !Join
+                  - /
+                  - - origin-access-identity
+                    - cloudfront
+                    - !Ref originAccessIdentity
+            - Id: api
+              DomainName: !Join
+                - ""
+                - - !Ref HttpApi
+                  - .execute-api.${aws:region}.amazonaws.com
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: https-only
+                OriginSSLProtocols:
+                  - TLSv1.2
+          Enabled: true
+          HttpVersion: http2
+          DefaultRootObject: index.html
+          Aliases:
+            - !If [Prod, niccannon.com, dev.niccannon.com]
+            - !If [Prod, www.niccannon.com, www.dev.niccannon.com]
+          DefaultCacheBehavior:
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            TargetOriginId: frontend
+            ForwardedValues:
+              QueryString: "false"
+              Cookies:
+                Forward: none
+            ViewerProtocolPolicy: redirect-to-https
+            MinTTL: 0
+            MaxTTL: 3600
+            DefaultTTL: 3600
+          CacheBehaviors:
+            - PathPattern: "/api/*"
+              TargetOriginId: api
               AllowedMethods:
-                - GET
                 - HEAD
+                - GET
                 - OPTIONS
+                - PUT
+                - PATCH
+                - DELETE
+                - POST
               CachedMethods:
                 - GET
                 - HEAD
-              Compress: true
-              TargetOriginId: frontend
               ForwardedValues:
-                QueryString: 'false'
+                QueryString: true
                 Cookies:
                   Forward: none
-              ViewerProtocolPolicy: redirect-to-https
               MinTTL: 0
-              MaxTTL: 3600
-              DefaultTTL: 3600
-            CacheBehaviors:
-              - PathPattern: "/${sls:stage}/*"
-                TargetOriginId: api
-                AllowedMethods:
-                  - HEAD
-                  - GET
-                  - OPTIONS
-                  - PUT
-                  - PATCH
-                  - DELETE
-                  - POST
-                CachedMethods:
-                  - GET
-                  - HEAD
-                ForwardedValues:
-                  QueryString: true
-                  Cookies:
-                    Forward: none
-                MinTTL: 0
-                MaxTTL: 0
-                DefaultTTL: 0
-                ViewerProtocolPolicy: redirect-to-https
-            CustomErrorResponses:
-              - ErrorCode: 404
-                ResponseCode: 404
-                ResponsePagePath: "/index.html"
-              - ErrorCode: 403
-                ResponseCode: 200
-                ResponsePagePath: "/index.html"
-            Restrictions:
-              GeoRestriction:
-                RestrictionType: none
-            ViewerCertificate:
-              # TODO: Setup with ACM cert
-              CloudFrontDefaultCertificate: 'true'
+              MaxTTL: 0
+              DefaultTTL: 0
+              ViewerProtocolPolicy: redirect-to-https
+          CustomErrorResponses:
+            - ErrorCode: 404
+              ResponseCode: 404
+              ResponsePagePath: "/index.html"
+            - ErrorCode: 403
+              ResponseCode: 200
+              ResponsePagePath: "/index.html"
+          Restrictions:
+            GeoRestriction:
+              RestrictionType: none
+          ViewerCertificate:
+            # TODO: ref this arn better
+            AcmCertificateArn: arn:aws:acm:us-east-1:696091413426:certificate/0e96def6-99cb-4286-87a7-7009397160fc
+            SslSupportMethod: sni-only
+        Tags:
+          - Key: "project"
+            Value: portfolio-${sls:stage}
+
+    RecordSet:
+      Type: AWS::Route53::RecordSet
+      Properties:
+        Name: !If [Prod, niccannon.com, dev.niccannon.com]
+        Type: A
+        HostedZoneId: Z04395608SQRCH9GIVM9 # TODO: ref this hosted zone id better
+        AliasTarget:
+          DNSName: !GetAtt Distribution.DomainName
+          EvaluateTargetHealth: False
+          HostedZoneId: Z2FDTNDATAQYW2 # this is the cloudfront hosted zone id
+
+    WWWRecordSet:
+      Type: AWS::Route53::RecordSet
+      Properties:
+        Name: !If [Prod, www.niccannon.com, www.dev.niccannon.com]
+        Type: CNAME
+        TTL: 300
+        HostedZoneId: Z04395608SQRCH9GIVM9 # TODO: ref this hosted zone id better
+        ResourceRecords:
+          - !If [Prod, niccannon.com, dev.niccannon.com]
 
     AboutTable:
       Type: AWS::DynamoDB::Table
@@ -199,6 +228,9 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
+        Tags:
+          - Key: "project"
+            Value: portfolio-${sls:stage}
 
     ProjectsTable:
       Type: AWS::DynamoDB::Table
@@ -213,10 +245,10 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
+        Tags:
+          - Key: "project"
+            Value: portfolio-${sls:stage}
 
   Outputs:
-    DistributionUrl:
-      Value: !GetAtt Distribution.DomainName
-
     FrontendBucketKey:
       Value: !Ref FrontendBucket
