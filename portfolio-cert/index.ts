@@ -8,7 +8,11 @@ const zoneId = config.require("hostedZoneId");
 
 const cert = new aws.acm.Certificate(`portfolio-cert-${stack}`, {
   domainName: "niccannon.com",
-  subjectAlternativeNames: ["*.niccannon.com", "www.niccannon.com"],
+  subjectAlternativeNames: [
+    "*.niccannon.com",
+    "www.niccannon.com",
+    "www.dev.niccannon.com",
+  ],
   validationMethod: "DNS",
   tags: {
     project: `portfolio-${stack}`,
