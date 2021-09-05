@@ -1,12 +1,17 @@
 const fs = require("fs");
+const path = require("path");
 const AWS = require("aws-sdk");
 
-const ENV = "dev";
+const ENV = "prod";
+const dataPath = path.join(__dirname, "..", "seed");
+console.log(dataPath);
 
 AWS.config.update({ region: "ap-southeast-2" });
 var docClient = new AWS.DynamoDB.DocumentClient();
 
-const projects = JSON.parse(fs.readFileSync("../seed/projects.json"));
+const projects = JSON.parse(
+  fs.readFileSync(path.join(dataPath, "projects.json"))
+);
 projects.forEach((project) => {
   docClient.put(
     {
@@ -23,7 +28,7 @@ projects.forEach((project) => {
   );
 });
 
-const about = JSON.parse(fs.readFileSync("./seed/about.json"));
+const about = JSON.parse(fs.readFileSync(path.join(dataPath, "about.json")));
 about.forEach((about) => {
   docClient.put(
     {

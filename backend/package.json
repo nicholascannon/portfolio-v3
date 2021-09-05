@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "sls offline start",
-    "deploy": "sls deploy -v",
+    "deploy": "sls deploy -v -s prod",
     "build": "sls package"
   },
   "devDependencies": {
