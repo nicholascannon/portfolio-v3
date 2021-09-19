@@ -16,8 +16,13 @@ body {
 	background-color: #111115;
 	color: #fff;
 }
+
 button {
 	font-family: 'Montserrat', sans-serif;
+}
+
+a:hover {
+	cursor: pointer;
 }
 
 /* REQUIRED due to particle.js */

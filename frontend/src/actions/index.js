@@ -9,10 +9,11 @@ export const getBlob = () => dispatch => {
 			dispatch({ type: GET_PROJECTS, payload: res.data.projects });
 			dispatch({ type: GET_ABOUT, payload: res.data.about });
 		})
-		.catch(err =>
+		.catch(err => {
+			console.error(err);
 			dispatch({
 				type: NEW_ERROR,
-				payload: { msg: err.response.data.msg, code: err.response.status, id: GET_PROJECTS }
-			})
-		);
+				payload: { msg: err.response?.data.msg, code: err.response.status, id: GET_PROJECTS }
+			});
+		});
 };

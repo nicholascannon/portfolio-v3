@@ -6,7 +6,11 @@
     "deploy": "cd infra && pulumi up",
     "start:frontend": "cd frontend && npm start",
     "start:backend": "cd backend && npm run dev",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
     "build": "./scripts/build.sh",
     "bootstrap": "./scripts/bootstrap.sh"
+  },
+  "devDependencies": {
+    "concurrently": "^6.2.1"
   }
 }

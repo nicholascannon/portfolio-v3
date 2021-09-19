@@ -1,32 +1,13 @@
 import React from 'react';
-import { Route, Switch, withRouter, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { CSSTransition } from 'react-transition-group';
 import Particles from 'react-particles-js';
 import particleSettings from './particleSettings';
 import FontAwesome from 'react-fontawesome';
 import ReactGA from 'react-ga';
-
 import { getBlob } from './actions';
-
-import {
-	HomePage,
-	AboutPage,
-	SkillsPage,
-	ProjectsPage,
-	NotFoundPage
-} from './components/pages';
+import { HomePage, AboutPage, SkillsPage, ProjectsPage, NotFoundPage } from './components/pages';
 
 import './App.css';
-
-const routes = [
-	{ path: '/', Component: <HomePage /> },
-	{ path: '/about', Component: <AboutPage /> },
-	// { path: '/contact', Component: <ContactPage /> },
-	{ path: '/skills', Component: <SkillsPage /> },
-	{ path: '/projects', Component: <ProjectsPage /> },
-	// { path: '/admin', Component: <AdminPage /> }
-];
 
 class App extends React.Component {
 	componentDidMount() {
@@ -60,31 +41,19 @@ class App extends React.Component {
 					style={{ position: 'fixed', top: '0', right: '0', zIndex: '-1' }}
 					params={particleSettings}
 				/>
-				<header>
+				{/* <header>
 					{this.props.location.pathname !== '/' ? (
 						<Link to="/" id="brand">
 							NICHOLAS CANNON
 						</Link>
 					) : null}
-					{/* <Nav /> */}
-				</header>
-				<Switch>
-					{routes.map(({ path, Component }) => (
-						<Route key={path} exact path={path}>
-							{({ match }) => (
-								<CSSTransition
-									in={match != null}
-									timeout={300}
-									classNames="page"
-									unmountOnExit
-									appear>
-									{Component}
-								</CSSTransition>
-							)}
-						</Route>
-					))}
-					<Route key="notfound" component={NotFoundPage} />
-				</Switch>
+				</header> */}
+
+				<HomePage />
+				<AboutPage />
+				<ProjectsPage />
+				<SkillsPage />
+
 				<div className="social-links">
 					<p>Nicholas Cannon &copy;2020</p>
 					<div>
@@ -106,4 +75,4 @@ class App extends React.Component {
 
 const mapStateToProps = state => ({});
 
-export default withRouter(connect(mapStateToProps, { getBlob })(App));
+export default connect(mapStateToProps, { getBlob })(App);
