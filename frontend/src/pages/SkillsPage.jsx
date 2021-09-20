@@ -1,5 +1,5 @@
 import React from 'react';
-import Page from './Page';
+import Page from '../components/Page';
 import skills from '../../imgs/skills';
 
 import './SkillsPage.css';

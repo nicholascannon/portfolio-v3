@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import store from './store';
 import ReactGA from 'react-ga';
 import App from './App';
+
 import './index.css';
 
 ReactGA.initialize(process.env.REACT_APP_GA_TRACKING_ID, {

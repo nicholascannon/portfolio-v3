@@ -1,10 +1,8 @@
 import React from 'react';
-import Page from './Page';
+import Page from '../components/Page';
 import { connect } from 'react-redux';
 
-import profileImg from '../../imgs/profilePic.jpg';
-import resume from '../../docs/Nicholas-Cannon-CV.pdf';
-
+import profileImg from '../imgs/profilePic.jpg';
 import './AboutPage.css';
 
 class AboutPage extends React.Component {
@@ -24,7 +22,10 @@ class AboutPage extends React.Component {
 						<p dangerouslySetInnerHTML={{ __html: this.props.body }}></p>
 						<br />
 						<div className="aboutButtons">
-							<a href={resume} target="_blank" rel="noopener noreferrer">
+							<a
+								href={`${process.env.PUBLIC_URL}/docs/Nicholas-Cannon-CV.pdf`}
+								target="_blank"
+								rel="noopener noreferrer">
 								Resume
 							</a>
 							<a href="mailto:nicholascannon1@gmail.com" target="_blank" rel="noopener noreferrer">
@@ -39,9 +40,9 @@ class AboutPage extends React.Component {
 	}
 }
 const mapStateToProps = state => ({
-	heading: state.admin.about.heading,
-	subHeading: state.admin.about.subHeading,
-	body: state.admin.about.body
+	heading: state.blob.about.heading,
+	subHeading: state.blob.about.subHeading,
+	body: state.blob.about.body
 });
 
 export default connect(mapStateToProps, {})(AboutPage);

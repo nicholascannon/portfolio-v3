@@ -1,8 +1,5 @@
-/**
- * ProjectsPage.js
- */
 import React from 'react';
-import Page from './Page';
+import Page from '../components/Page';
 import { connect } from 'react-redux';
 
 import './ProjectsPage.css';
@@ -54,7 +51,7 @@ class ProjectsPage extends React.Component {
 }
 
 const mapStateToProps = state => ({
-	projects: state.projects.projects
+	projects: state.blob.projects
 });
 
 export default connect(mapStateToProps, {})(ProjectsPage);

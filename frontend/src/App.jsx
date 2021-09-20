@@ -1,5 +1,5 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import Particles from 'react-particles-js';
 import { settings } from './particleSettings';
 import FontAwesome from 'react-fontawesome';
@@ -9,22 +9,11 @@ import { HomePage, AboutPage, SkillsPage, ProjectsPage, NotFoundPage } from './c
 
 import './App.css';
 
-class App extends React.Component {
-	componentDidMount() {
-		this.props.getBlob();
-		ReactGA.pageview(window.location.pathname);
-	}
+const App = () => {
+	const dispatch = useDispatch();
+	const shouldDisplayNotFound = window.location.pathname !== '/';
 
-	componentWillMount() {
-		window.addEventListener('resize', this.windowResize);
-		this.windowResize();
-	}
-
-	componentWillUnmount() {
-		window.removeEventListener('resize', this.windowResize);
-	}
-
-	windowResize = () => {
+	const windowResize = () => {
 		if (window.innerWidth < 576) {
 			document.getElementById('App').className = 'mobile';
 		} else if (window.innerWidth < 768) {
@@ -34,14 +23,25 @@ class App extends React.Component {
 		}
 	};
 
-	render() {
-		return (
-			<React.Fragment>
-				<Particles
-					style={{ position: 'fixed', top: '0', right: '0', zIndex: '-1' }}
-					params={settings}
-				/>
-				{/* <header>
+	useEffect(() => {
+		ReactGA.pageview(window.location.pathname);
+		window.addEventListener('resize', windowResize);
+
+		dispatch(getBlob());
+		windowResize();
+
+		return () => {
+			window.removeEventListener('resize', windowResize);
+		};
+	}, [dispatch]);
+
+	return (
+		<React.Fragment>
+			<Particles
+				style={{ position: 'fixed', top: '0', right: '0', zIndex: '-1' }}
+				params={settings}
+			/>
+			{/* <header>
 					{this.props.location.pathname !== '/' ? (
 						<Link to="/" id="brand">
 							NICHOLAS CANNON
@@ -49,30 +49,33 @@ class App extends React.Component {
 					) : null}
 				</header> */}
 
-				<HomePage />
-				<AboutPage />
-				<ProjectsPage />
-				<SkillsPage />
+			{shouldDisplayNotFound ? (
+				<NotFoundPage />
+			) : (
+				<>
+					<HomePage />
+					<AboutPage />
+					<ProjectsPage />
+					<SkillsPage />
+				</>
+			)}
 
-				<div className="social-links">
-					<p>Nicholas Cannon &copy;2020</p>
-					<div>
-						<a
-							href="https://www.linkedin.com/in/niccannon1"
-							target="_blank"
-							rel="noopener noreferrer">
-							<FontAwesome name="linkedin" size="2x" />
-						</a>
-						<a href="https://github.com/nicholascannon1" target="_blank" rel="noopener noreferrer">
-							<FontAwesome name="github" size="2x" />
-						</a>
-					</div>
+			<div className="social-links">
+				<p>Nicholas Cannon &copy;2020</p>
+				<div>
+					<a
+						href="https://www.linkedin.com/in/niccannon1"
+						target="_blank"
+						rel="noopener noreferrer">
+						<FontAwesome name="linkedin" size="2x" />
+					</a>
+					<a href="https://github.com/nicholascannon1" target="_blank" rel="noopener noreferrer">
+						<FontAwesome name="github" size="2x" />
+					</a>
 				</div>
-			</React.Fragment>
-		);
-	}
-}
+			</div>
+		</React.Fragment>
+	);
+};
 
-const mapStateToProps = state => ({});
-
-export default connect(mapStateToProps, { getBlob })(App);
+export default App;
