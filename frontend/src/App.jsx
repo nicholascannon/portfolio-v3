@@ -5,7 +5,11 @@ import { settings } from './particleSettings';
 import FontAwesome from 'react-fontawesome';
 import ReactGA from 'react-ga';
 import { getBlob } from './actions';
-import { HomePage, AboutPage, SkillsPage, ProjectsPage, NotFoundPage } from './components/pages';
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import NotFoundPage from './pages/NotFoundPage';
+import ProjectsPage from './pages/ProjectsPage';
+import SkillsPage from './pages/SkillsPage';
 
 import './App.css';
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import './Page.css';
@@ -19,8 +18,4 @@ Page.propTypes = {
 	pageName: PropTypes.string.isRequired
 };
 
-const mapStateToProps = state => ({
-	navOpen: state.nav.isOpen
-});
-
-export default connect(mapStateToProps, {})(Page);
+export default Page;

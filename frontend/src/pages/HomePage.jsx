@@ -1,6 +1,6 @@
 import React from 'react';
 import Page from '../components/Page';
-import QuickLinks from '../QuickLinks';
+import QuickLinks from '../components/QuickLinks';
 
 import './HomePage.css';
 
