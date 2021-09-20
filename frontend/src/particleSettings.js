@@ -1,8 +1,4 @@
-/**
- * Particle.js settings
- */
-/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
-export default {
+export const settings = {
 	particles: {
 		color: {
 			value: '#005cb9'

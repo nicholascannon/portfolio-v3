@@ -1,6 +1,3 @@
-/**
- * AboutPage.js
- */
 import React from 'react';
 import Page from './Page';
 import { connect } from 'react-redux';

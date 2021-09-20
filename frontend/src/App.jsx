@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Particles from 'react-particles-js';
-import particleSettings from './particleSettings';
+import { settings } from './particleSettings';
 import FontAwesome from 'react-fontawesome';
 import ReactGA from 'react-ga';
 import { getBlob } from './actions';
@@ -39,7 +39,7 @@ class App extends React.Component {
 			<React.Fragment>
 				<Particles
 					style={{ position: 'fixed', top: '0', right: '0', zIndex: '-1' }}
-					params={particleSettings}
+					params={settings}
 				/>
 				{/* <header>
 					{this.props.location.pathname !== '/' ? (
