@@ -4,6 +4,8 @@ The third iteration of my development portfolio: fully serverless and simple.
 
 This iteration has been retired. Please see iteration 4 [here](https://github.com/nicholascannon1/portfolio-v4) for the newest version.
 
+To see this version live head to [old.niccannon.com](https://old.niccannon.com/).
+
 Previous iterations:
 
 - [V2](https://github.com/nicholascannon1/portfolio2.0) (MERN stack)

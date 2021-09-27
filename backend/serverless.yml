@@ -130,8 +130,8 @@ resources:
           HttpVersion: http2
           DefaultRootObject: index.html
           Aliases:
-            - niccannon.com
-            - www.niccannon.com
+            - old.niccannon.com
+            - www.old.niccannon.com
           DefaultCacheBehavior:
             AllowedMethods:
               - GET
@@ -184,7 +184,7 @@ resources:
               RestrictionType: none
           ViewerCertificate:
             # TODO: ref this arn better
-            AcmCertificateArn: arn:aws:acm:us-east-1:696091413426:certificate/0e96def6-99cb-4286-87a7-7009397160fc
+            AcmCertificateArn: arn:aws:acm:us-east-1:696091413426:certificate/d5aacba9-980b-4994-af9a-212a50935d50
             SslSupportMethod: sni-only
         Tags:
           - Key: "project"
@@ -193,7 +193,7 @@ resources:
     RecordSet:
       Type: AWS::Route53::RecordSet
       Properties:
-        Name: niccannon.com
+        Name: old.niccannon.com
         Type: A
         HostedZoneId: Z04395608SQRCH9GIVM9 # TODO: ref this hosted zone id better
         AliasTarget:
@@ -204,12 +204,12 @@ resources:
     WWWRecordSet:
       Type: AWS::Route53::RecordSet
       Properties:
-        Name: www.niccannon.com
+        Name: www.old.niccannon.com
         Type: CNAME
         TTL: 300
         HostedZoneId: Z04395608SQRCH9GIVM9 # TODO: ref this hosted zone id better
         ResourceRecords:
-          - niccannon.com
+          - old.niccannon.com
 
     AboutTable:
       Type: AWS::DynamoDB::Table

@@ -8,11 +8,7 @@ const zoneId = config.require("hostedZoneId");
 
 const cert = new aws.acm.Certificate(`portfolio-cert-${stack}`, {
   domainName: "niccannon.com",
-  subjectAlternativeNames: [
-    "*.niccannon.com",
-    "www.niccannon.com",
-    "www.dev.niccannon.com",
-  ],
+  subjectAlternativeNames: ["*.niccannon.com", "www.niccannon.com", "www.old.niccannon.com"],
   validationMethod: "DNS",
   tags: {
     project: `portfolio-${stack}`,
@@ -42,14 +38,9 @@ const valRecords = validationOpts.apply((opts) =>
   )
 );
 
-const certValidation = new aws.acm.CertificateValidation(
-  `portfolio-cert-val-${stack}`,
-  {
-    certificateArn: cert.arn,
-    validationRecordFqdns: valRecords.apply((recs) =>
-      recs.map((record) => record.fqdn)
-    ),
-  }
-);
+const certValidation = new aws.acm.CertificateValidation(`portfolio-cert-val-${stack}`, {
+  certificateArn: cert.arn,
+  validationRecordFqdns: valRecords.apply((recs) => recs.map((record) => record.fqdn)),
+});
 
 export const certArn = certValidation.certificateArn;
