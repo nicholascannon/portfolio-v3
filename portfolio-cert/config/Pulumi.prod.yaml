@@ -1,4 +1,0 @@
-config:
-  aws:region: us-east-1
-  portfolio-cert:hostedZoneId: Z04395608SQRCH9GIVM9
-  pulumi:template: aws-typescript

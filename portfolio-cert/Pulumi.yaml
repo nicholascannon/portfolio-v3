@@ -1,4 +1,0 @@
-name: portfolio-cert
-runtime: nodejs
-description: Portfolio ACM certificates
-config: config/
